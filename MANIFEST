@@ -1,9 +1,8 @@
 # TODO
-# [&Copy v] (*) C&alc ( ) Con&v. ( ) &Regex [&Options…] [&Quit]
-# AnsTree
-# ExprCombo
-# NOTE
-# handle expressions, regexes, conversions
+# if /\w+=/ assignment of expression
+# elseif rx|regex{p} ... regexp
+# elseif conv{ert} ... conversion
+# else expression
 
 eval.tk
 app-1.tm
