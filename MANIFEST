@@ -1,8 +1,12 @@
 # TODO
+# automode: guess what it is
 # if /\w+=/ assignment of expression
-# elseif rx|regex{p} ... regexp
-# elseif conv{ert} ... conversion
+# elseif regexp ... regexp
+# elseif conv ... conversion
+# elseif recall (!123) replace with that line ready for editing
 # else expression
+# use AnsText as a "tillroll"
+# Combo no Entry yes
 
 eval.tk
 app-1.tm
