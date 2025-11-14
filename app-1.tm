@@ -9,7 +9,7 @@ package require ui
 oo::singleton create App {
     variable AnsText
     variable VarTree
-    variable ExprCombo
+    variable EvalCombo
     variable RegexTextCombo
     variable CopyButton
     variable CopyMenu
@@ -20,6 +20,7 @@ oo::define App constructor {} {
     ui::wishinit
     tk appname Eval
     Config new ;# we need tk scaling done early
+    my make_fonts
     set Vars [dict create]
     my make_ui
 }
@@ -35,8 +36,8 @@ oo::define App method show {} {
 
 oo::define App method on_startup {} {
     .mf.pw sashpos 0 [expr {[winfo width .] / 2}]
-    my help
-    focus $ExprCombo
+    my do_help
+    focus $EvalCombo
 }
 
 oo::define App method make_ui {} {
@@ -58,10 +59,18 @@ oo::define App method make_widgets {} {
     ttk::panedwindow .mf.pw -orient horizontal
     my make_anstext
     my make_vartree
-    set ExprCombo [ttk::combobox .mf.exprcombo \
+    set EvalCombo [ttk::combobox .mf.exprcombo -font Sans \
         -placeholder "enter expr or conversion or date expr or regexp" ]
-    set RegexTextCombo [ttk::combobox .mf.regextextcombo \
+    if {[set eval_txt [$config lasteval]] ne ""} {
+        $EvalCombo configure -values [list $eval_txt]
+        $EvalCombo set $eval_txt
+    }
+    set RegexTextCombo [ttk::combobox .mf.regextextcombo -font Sans \
         -placeholder "enter text for regexp to match"]
+    if {[set re_txt [$config lastregexptext]] ne ""} {
+        $RegexTextCombo configure -values [list $re_txt]
+        $RegexTextCombo set $re_txt
+    }
     ttk::frame .mf.ctrl
     set CopyButton [ttk::menubutton .mf.ctrl.copyButton -text Copy \
         -underline 0 -width 7 -compound left \
@@ -77,7 +86,6 @@ oo::define App method make_widgets {} {
 }
 
 oo::define App method make_anstext {} {
-    const HIGHLIGHT_COLOR yellow
     const COLOR_FOR_TAG [dict create \
         black "#000000" \
         grey "#555555" \
@@ -98,7 +106,6 @@ oo::define App method make_anstext {} {
         purple "#911EB4" \
         magenta "#F032E6" \
         ]
-    my make_fonts
     set frm [ttk::frame .mf.af]
     set name anstext
     set AnsText [text $frm.$name -wrap word]
@@ -108,7 +115,7 @@ oo::define App method make_anstext {} {
     $AnsText tag configure italic -font Italic
     $AnsText tag configure bolditalic -font BoldItalic
     $AnsText tag configure ul -underline true
-    $AnsText tag configure highlight -background $HIGHLIGHT_COLOR
+    $AnsText tag configure highlight -background yellow
     dict for {key value} $COLOR_FOR_TAG {
         $AnsText tag configure $key -foreground $value
     }
@@ -119,8 +126,9 @@ oo::define App method make_anstext {} {
 }
 
 oo::define App method make_fonts {} {
-    set family [font configure TkDefaultFont -family]
-    set size [font configure TkDefaultFont -size]
+    set config [Config new]
+    set family [$config family]
+    set size [$config size]
     foreach name {Sans Bold Italic BoldItalic} {
         catch { font delete $name }
     }
@@ -136,7 +144,7 @@ oo::define App method make_vartree {} {
     set name vartree
     set VarTree [ttk::treeview $frm.$name -selectmode browse -striped true \
         -columns {dec hex uni}]
-    set cwidth [font measure TkDefaultFont WWW]
+    set cwidth [font measure Sans WWW]
     $VarTree column #0 -width [expr {$cwidth * 2}] -stretch true 
     $VarTree column 0 -width $cwidth -stretch false -anchor e
     $VarTree column 1 -width $cwidth -stretch false -anchor e
@@ -157,14 +165,14 @@ oo::define App method make_layout {} {
     pack .mf.ctrl.quitButton -side left
     pack .mf.ctrl -side bottom -fill x
     pack $RegexTextCombo -side bottom -fill x
-    pack $ExprCombo -side bottom -fill x
+    pack $EvalCombo -side bottom -fill x
     pack .mf.pw -fill both -expand true
     pack .mf -fill both -expand true
 }
 
 oo::define App method make_bindings {} {
     bind $RegexTextCombo <Return> [callback on_eval]
-    bind $ExprCombo <Return> [callback on_eval]
+    bind $EvalCombo <Return> [callback on_eval]
     bind . <Alt-o> [callback on_config]
     bind . <Alt-q> [callback on_quit]
     bind . <Escape> [callback on_quit]
@@ -174,30 +182,53 @@ oo::define App method make_bindings {} {
 oo::define App method on_config {} {
     set config [Config new]
     set ok [Ref new false]
+    set family [$config family]
+    set size [$config size]
     set form [ConfigForm new $ok]
     tkwait window [$form form]
+    if {[$ok get]} {
+        if {$family ne [$config family] || $size != [$config size]} {
+            my make_fonts
+        }
+    }
 }
 
 oo::define App method on_quit {} {
-    [Config new] save
+    [Config new] save [$EvalCombo get] [$RegexTextCombo get]
     exit
 }
 
-# - ([?]|help) → show help text
-# - [+*?\\] → regexp
-# - (?:meter|km|kilo|kg|second|rad(?:ian)?|deg(?:gree)?|foot|ft|hectare|
-#    in(?:ch)?|mi(?:le)?pound|lb|yd|yards?|litres?|stones?|mm|points?)
-#   → conversion
-# - \d{2,4}-\d\d?-\d\d?\s*[-+]\s*(?:days?months|\d{2,4}-\d\d?-\d\d?) → date
-# - [[:alpha:]]\w*\s*= → assignment expr
-# - else expr
 oo::define App method on_eval {} {
-    set eval_txt [$ExprCombo get]
-    if {$eval_txt eq "?" | $eval_txt eq "help"} { my help ; return }
-    set re_text [$RegexTextCombo get]
+    set eval_txt [string trim [$EvalCombo get]]
+    if {$eval_txt eq ""} { return }
+    my update_combo $EvalCombo $eval_txt
+    if {$eval_txt eq "?" | $eval_txt eq "help"} { my do_help ; return }
+    if {[regexp {[+*?\\]} $eval_txt]} { my do_regexp $eval_txt ; return }
+    if {[regexp -expanded {\m(meter|km|kilo|kg|second|rad(?:ian)?|
+            deg(?:gree)?|foot|ft|hectare|in(?:ch)?|mi(?:le)?pound|lb|
+            yd|yards?|litres?|stones?|mm|points?)\M} $eval_txt]} {
+        my do_conversion $eval_txt
+        return
+    }
+    if {[regexp {\d{2,4}-\d\d?-\d\d?} $eval_txt]} {
+        my do_date $eval_txt; return
+    }
+    if {[string first = $eval_txt] > -1} {
+        my do_assignment $eval_txt
+        return
+    }
+    my do_expression $eval_txt
 }
 
-oo::define App method help {} {
+oo::define App method update_combo {combo value} {
+    set values [$combo cget -values]
+    if {$value ni $values} {
+        lappend values $value
+        $combo configure -values $values
+    }
+}
+
+oo::define App method do_help {} {
     set say "$AnsText insert end"
     {*}$say Help\n {bold navy center}
     {*}$say "Enter one of the following:\n" indent
@@ -268,4 +299,35 @@ oo::define App method help {} {
     {*}$say ", " indent
     {*}$say ** {purple indent}
     {*}$say ".\n" indent
+    {*}$say \n
+}
+
+oo::define App method do_regexp pattern {
+    set say "$AnsText insert end"
+    set re_text [string trim [$RegexTextCombo get]]
+    if {$re_text eq ""} {
+        {*}$say "Enter text for regexp to match…" red
+        focus $RegexTextCombo
+        $AnsText see end
+        return
+    } else {
+        my update_combo $RegexTextCombo $re_text
+        puts do_regexp ;# TODO
+    }
+}
+
+oo::define App method do_conversion txt {
+        puts do_conversion ;# TODO
+}
+
+oo::define App method do_date txt {
+        puts do_date ;# TODO
+}
+
+oo::define App method do_assignment txt {
+        puts do_assignment ;# TODO
+}
+
+oo::define App method do_expression txt {
+        puts do_expression ;# TODO
 }
