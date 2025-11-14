@@ -12,6 +12,8 @@ package require app
 package require units
 
 units::new stone 14lb
+units::new point 0.013888888888888888in
+units::new pt 1point
 
 set app [App new]
 $app show
