@@ -153,7 +153,7 @@ oo::define App method make_vartree {} {
     $VarTree heading #0 -text Var
     $VarTree heading 0 -text Dec
     $VarTree heading 1 -text Hex
-    $VarTree heading 2 -text U+
+    $VarTree heading 2 -text Uni
     ui::scrollize $frm $name both
     .mf.pw add $frm -weight 1
 }
