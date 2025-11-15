@@ -345,6 +345,7 @@ oo::define App method do_regexp pattern {
 }
 
 oo::define App method do_conversion txt {
+    set txt [regsub -nocase {\mto\M} $txt ""]
     set say "$AnsText insert end"
     try {
         {*}$say "conv: " {green indent}
