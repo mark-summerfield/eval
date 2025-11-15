@@ -173,7 +173,9 @@ oo::define App method make_layout {} {
 
 oo::define App method make_bindings {} {
     bind $RegexTextCombo <Return> [callback on_eval]
+    bind $RegexTextCombo <Control-a> [callback on_select_all %W]
     bind $EvalCombo <Return> [callback on_eval]
+    bind $EvalCombo <Control-a> [callback on_select_all %W]
     bind . <Alt-o> [callback on_config]
     bind . <Alt-q> [callback on_quit]
     bind . <Escape> [callback on_quit]
@@ -199,6 +201,8 @@ oo::define App method on_quit {} {
     exit
 }
 
+oo::define App method on_select_all widget { $widget selection range 0 end }
+
 oo::define App method on_eval {} {
     set eval_txt [string trim [$EvalCombo get]]
     if {$eval_txt eq ""} { return }
@@ -213,7 +217,10 @@ oo::define App method on_eval {} {
         my do_conversion $eval_txt
         return
     }
-    if {[regexp {[+*?\\]} $eval_txt]} { my do_regexp $eval_txt ; return }
+    if {[regexp {[]^$\{,:?\\|]} $eval_txt]} {
+        my do_regexp $eval_txt
+        return
+    }
     if {[string first = $eval_txt] > -1} {
         my do_assignment $eval_txt
         return
@@ -264,7 +271,7 @@ oo::define App method do_help {} {
     {*}$say " or " indent
     {*}$say "25-11-14 - 25-7-19" {blue indent}
     {*}$say ".\nPress " indent
-    {*}$say Return {blue indent}
+    {*}$say Return {blue bold indent}
     {*}$say " to calculate.\n\n" indent
     {*}$say "Some supported functions: " indent
     {*}$say hypot( {purple indent}
