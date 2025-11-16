@@ -1,6 +1,7 @@
 # Copyright © 2025 Mark Summerfield. All rights reserved.
 
 package require autoscroll 1
+package require lambda 1
 
 namespace eval ui {}
 
@@ -50,4 +51,30 @@ proc ui::scrollize {frame name which} {
     }
     grid columnconfigure $frame 0 -weight 1
     grid rowconfigure $frame 0 -weight 1
+}
+
+# Use for ttk::entry and ttk::combobox
+proc ui::apply_edit_bindings widget {
+    bind $widget <Control-Delete> {
+        set txt [%W get]
+        set i [%W index insert]
+        set j [expr {$i + 1}]
+        while {$j < [string length $txt] && \
+                [string is alnum [string index $txt $j]]} {
+            incr j
+        }
+        %W delete $i $j
+        break
+    }
+    bind $widget <Control-BackSpace>  {
+        set txt [%W get]
+        set i [%W index insert]
+        set j [expr {$i - 1}]
+        while {$j >= 0 && [string is alnum [string index $txt $j]]} {
+            incr j -1
+        }
+        %W delete $j $i
+        break
+    }
+    bind $widget <Control-a> { %W selection range 0 end ; break }
 }

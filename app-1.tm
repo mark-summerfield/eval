@@ -88,6 +88,7 @@ oo::define App method prepare_combo {combo txt} {
     $combo configure -values [list $txt]
     $combo set $txt
     $combo selection range 0 end
+    ui::apply_edit_bindings $combo
 }
 
 oo::define App method make_anstext {} {
@@ -177,9 +178,9 @@ oo::define App method make_layout {} {
 
 oo::define App method make_bindings {} {
     bind $RegexTextCombo <Return> [callback on_eval]
-    bind $RegexTextCombo <Control-a> [callback on_select_all %W]
+    #bind $RegexTextCombo <Control-a> [callback on_select_all %W]
     bind $EvalCombo <Return> [callback on_eval]
-    bind $EvalCombo <Control-a> [callback on_select_all %W]
+    #bind $EvalCombo <Control-a> [callback on_select_all %W]
     bind . <Alt-o> [callback on_config]
     bind . <Alt-q> [callback on_quit]
     bind . <Escape> [callback on_quit]
@@ -368,16 +369,16 @@ oo::define App method do_conversion txt {
 oo::define App method do_date txt {
     set say "$AnsText insert end"
     if {[regexp -expanded {
-            ((\d{2,4})-\d\d?-\d\d?)
-            \s*([-+])\s*
+            ((\d{2,4})-\d\d?-\d\d?) # from
+            \s*([-+])\s* # op
             (
-                (\d+\s*(:?days?|months?))|
-                (\d{2,4})-\d\d?-\d\d?
+                (\d+\s*(:?days?|months?))| # add or subtract
+                (\d{2,4})-\d\d?-\d\d? # or to
             )} $txt _ start year1 op by_or_end year2]} {
         try {
             set fmt [expr {$year1 < 100 ? "%y-%m-%d" : "%Y-%m-%d"}]
             set from [clock scan $start -format $fmt]
-            if {[string match {[0-9]*} $by_or_end]} {
+            if {[string first {-} $by_or_end] != -1} {
                 set fmt [expr {$year2 < 100 ? "%y-%m-%d" : "%Y-%m-%d"}]
                 set to [clock scan $by_or_end -format $fmt]
                 set days [expr {abs($from - $to) / 86400}]
