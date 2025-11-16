@@ -62,15 +62,13 @@ oo::define App method make_widgets {} {
     my make_vartree
     set EvalCombo [ttk::combobox .mf.exprcombo -font Sans \
         -placeholder "enter expr or conversion or date expr or regexp" ]
-    if {[set eval_txt [$config lasteval]] ne ""} {
-        $EvalCombo configure -values [list $eval_txt]
-        $EvalCombo set $eval_txt
-    }
     set RegexTextCombo [ttk::combobox .mf.regextextcombo -font Sans \
         -placeholder "enter text for regexp to match"]
     if {[set re_txt [$config lastregexptext]] ne ""} {
-        $RegexTextCombo configure -values [list $re_txt]
-        $RegexTextCombo set $re_txt
+        my prepare_combo $RegexTextCombo $re_txt
+    }
+    if {[set eval_txt [$config lasteval]] ne ""} {
+        my prepare_combo $EvalCombo $eval_txt
     }
     ttk::frame .mf.ctrl
     set CopyButton [ttk::menubutton .mf.ctrl.copyButton -text Copy \
@@ -84,6 +82,12 @@ oo::define App method make_widgets {} {
     ttk::button .mf.ctrl.quitButton -text Quit -underline 0 \
         -command [callback on_quit] -width 7 -compound left \
         -image [ui::icon quit.svg $::ICON_SIZE]
+}
+
+oo::define App method prepare_combo {combo txt} {
+    $combo configure -values [list $txt]
+    $combo set $txt
+    $combo selection range 0 end
 }
 
 oo::define App method make_anstext {} {
