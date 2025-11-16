@@ -246,7 +246,7 @@ oo::define App method update_combo {combo value} {
 
 oo::define App method do_help {} {
     set say "$AnsText insert end"
-    {*}$say Help\n {bold navy center}
+    {*}$say Help\n {bold magenta center}
     {*}$say "Enter one of the following:\n" indent
     {*}$say "Help: " {green italic indent}
     {*}$say ? {blue indent}
