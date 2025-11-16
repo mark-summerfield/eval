@@ -201,7 +201,10 @@ oo::define App method on_quit {} {
     exit
 }
 
-oo::define App method on_select_all widget { $widget selection range 0 end }
+oo::define App method on_select_all widget {
+    $widget selection range 0 end
+    return -code break
+}
 
 oo::define App method on_eval {} {
     set eval_txt [string trim [$EvalCombo get]]
