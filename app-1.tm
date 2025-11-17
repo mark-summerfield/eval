@@ -234,7 +234,7 @@ oo::define App method on_eval {} {
             mi(?:le)?pound|lb|yd|yards?|litres?|stones?|mm|pt|
             points?)\M} $eval_txt]} {
         my do_conversion $eval_txt
-    } elseif {[regexp {[]^$\{,:?\\|]} $eval_txt]} {
+    } elseif {[regexp {[]^$\{:?\\|]} $eval_txt]} {
         my do_regexp $eval_txt
     } elseif {[string first = $eval_txt] > -1} {
         my do_assignment $eval_txt
