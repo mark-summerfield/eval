@@ -241,6 +241,7 @@ oo::define App method on_eval {} {
     } else {
         my do_expression $eval_txt
     }
+    $AnsText see end
 }
 
 oo::define App method do_help {} {
@@ -315,7 +316,6 @@ oo::define App method do_help {} {
     {*}$say ** {purple indent}
     {*}$say ".\n" indent
     {*}$say \n
-    $AnsText see end
 }
 
 oo::define App method do_regexp pattern {
@@ -346,7 +346,6 @@ oo::define App method do_regexp pattern {
         } on error err {
             {*}$say $err\n red
         }
-        $AnsText see end
     }
 }
 
@@ -369,7 +368,6 @@ oo::define App method do_conversion txt {
     } on error err {
         {*}$say $err\n red
     }
-    $AnsText see end
 }
 
 oo::define App method do_date txt {
@@ -408,7 +406,6 @@ oo::define App method do_date txt {
     } else {
         {*}$say "invalid date expression\n" red
     }
-    $AnsText see end
 }
 
 oo::define App method do_assignment txt {
@@ -438,7 +435,6 @@ oo::define App method evaluate {name expression} {
     } on error err {
         {*}$say $err\n red
     }
-    $AnsText see end
 }
 
 oo::define App method refresh_vars {} {
