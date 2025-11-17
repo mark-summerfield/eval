@@ -7,7 +7,7 @@ oo::define App method on_eval {} {
         my do_help
     } elseif {$eval_txt eq "cls" | $eval_txt eq "clear"} {
         $AnsText delete 1.0 end
-    } elseif {[regexp {\d{2,4}-\d\d?-\d\d?} $eval_txt]} {
+    } elseif {[regexp {\d{2,4}-\d\d?-\d\d?|\mtoday\M} $eval_txt]} {
         my do_date $eval_txt
     } elseif {[regexp -expanded {(\m|\d)(meter|km|kilo|kg|second|
             rad(?:ian)?|deg(?:gree)?|foot|ft|hectare|in(?:ch)?|
@@ -56,7 +56,7 @@ oo::define App method do_help {} {
     {*}$say " (the 'to' is optional).\n" indent
     {*}$say "Date expression" {navy italic indent}
     {*}$say ", e.g., " indent
-    {*}$say "25-11-14 + 120 days" {blue indent}
+    {*}$say "25-11-14 +120 days" {blue indent}
     {*}$say " or " indent
     {*}$say "25-11-14 - 25-7-19" {blue indent}
     {*}$say "." indent
@@ -155,11 +155,13 @@ oo::define App method do_conversion txt {
 
 oo::define App method do_date txt {
     set say "$AnsText insert end"
+    set txt [regsub -all today $txt [clock format [clock scan now] \
+        -format %Y-%m-%d]]
     if {[regexp -expanded {
             ((\d{2,4})-\d\d?-\d\d?) # from
             \s*([-+])\s* # op
             (
-                (\d+\s*(:?days?|months?))| # add or subtract
+                (\d+\s+(:?days?|months?))| # add or subtract
                 (\d{2,4})-\d\d?-\d\d? # or to
             )} $txt _ start year1 op by_or_end year2]} {
         try {
