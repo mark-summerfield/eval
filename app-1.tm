@@ -156,7 +156,7 @@ oo::define App method make_vartree {} {
     set name vartree
     set VarTree [ttk::treeview $frm.$name -selectmode browse -striped true \
         -columns {dec hex uni}]
-    $VarTree column #0 -width [font measure Sans WWW] -stretch true
+    $VarTree column #0 -width [font measure Sans WWW]
     $VarTree column 0 -width [font measure Sans WWWWWW] -anchor e
     $VarTree column 1 -width [font measure Sans WWWW] -anchor e
     $VarTree column 2 -width [font measure Sans WW] -anchor center
@@ -170,14 +170,14 @@ oo::define App method make_vartree {} {
 
 oo::define App method make_layout {} {
     const opts "-pady 3 -padx 3"
-    pack .mf.ctrl.copyButton -side left
-    pack [ttk::frame .mf.ctrl.pad] -side left -fill x -expand true
-    pack .mf.ctrl.optionButton -side left
-    pack .mf.ctrl.aboutButton -side left
-    pack .mf.ctrl.quitButton -side left
+    pack .mf.ctrl.copyButton -side left {*}$opts
+    pack [ttk::frame .mf.ctrl.pad] -side left -fill x -expand true {*}$opts
+    pack .mf.ctrl.optionButton -side left {*}$opts
+    pack .mf.ctrl.aboutButton -side left {*}$opts
+    pack .mf.ctrl.quitButton -side left {*}$opts
     pack .mf.ctrl -side bottom -fill x
-    pack $RegexTextCombo -side bottom -fill x
-    pack $EvalCombo -side bottom -fill x
+    pack $RegexTextCombo -side bottom -fill x {*}$opts
+    pack $EvalCombo -side bottom -fill x {*}$opts
     pack .mf.pw -fill both -expand true
     pack .mf -fill both -expand true
 }
@@ -222,41 +222,24 @@ oo::define App method on_quit {} {
     exit
 }
 
-oo::define App method on_select_all widget {
-    $widget selection range 0 end
-    return -code break
-}
-
 oo::define App method on_eval {} {
     set eval_txt [string trim [$EvalCombo get]]
     if {$eval_txt eq ""} { return }
-    my update_combo $EvalCombo $eval_txt
-    if {$eval_txt eq "?" | $eval_txt eq "help"} { my do_help ; return }
-    if {[regexp {\d{2,4}-\d\d?-\d\d?} $eval_txt]} {
-        my do_date $eval_txt; return
-    }
-    if {[regexp -expanded {(\m|\d)(meter|km|kilo|kg|second|rad(?:ian)?|
-            deg(?:gree)?|foot|ft|hectare|in(?:ch)?|mi(?:le)?pound|lb|
-            yd|yards?|litres?|stones?|mm|pt|points?)\M} $eval_txt]} {
+    if {$eval_txt eq "?" | $eval_txt eq "help"} {
+        my do_help
+    } elseif {[regexp {\d{2,4}-\d\d?-\d\d?} $eval_txt]} {
+        my do_date $eval_txt
+    } elseif {[regexp -expanded {(\m|\d)(meter|km|kilo|kg|second|
+            rad(?:ian)?|deg(?:gree)?|foot|ft|hectare|in(?:ch)?|
+            mi(?:le)?pound|lb|yd|yards?|litres?|stones?|mm|pt|
+            points?)\M} $eval_txt]} {
         my do_conversion $eval_txt
-        return
-    }
-    if {[regexp {[]^$\{,:?\\|]} $eval_txt]} {
+    } elseif {[regexp {[]^$\{,:?\\|]} $eval_txt]} {
         my do_regexp $eval_txt
-        return
-    }
-    if {[string first = $eval_txt] > -1} {
+    } elseif {[string first = $eval_txt] > -1} {
         my do_assignment $eval_txt
-        return
-    }
-    my do_expression $eval_txt
-}
-
-oo::define App method update_combo {combo value} {
-    set values [$combo cget -values]
-    if {$value ni $values} {
-        lappend values $value
-        $combo configure -values $values
+    } else {
+        my do_expression $eval_txt
     }
 }
 
@@ -359,10 +342,19 @@ oo::define App method do_regexp pattern {
             } else {
                 {*}$say "no match\n" magenta
             }
+            my update_combo $EvalCombo $re_text
         } on error err {
             {*}$say $err\n red
         }
         $AnsText see end
+    }
+}
+
+oo::define App method update_combo {combo value} {
+    set values [$combo cget -values]
+    if {$value ni $values} {
+        lappend values $value
+        $combo configure -values $values
     }
 }
 
@@ -373,6 +365,7 @@ oo::define App method do_conversion txt {
         {*}$say $txt {blue indent}
         {*}$say " → " {green indent}
         {*}$say [units::convert {*}$txt]\n {blue indent}
+        my update_combo $EvalCombo $txt
     } on error err {
         {*}$say $err\n red
     }
@@ -408,6 +401,7 @@ oo::define App method do_date txt {
                 {*}$say " → " {green indent}
                 {*}$say $to\n {blue indent}
             }
+            my update_combo $EvalCombo $txt
         } on error err {
             {*}$say $err\n red
         }
@@ -440,6 +434,7 @@ oo::define App method evaluate {name expression} {
         {*}$say " = " {green indent}
         {*}$say [format %Lg\n $ans] {blue indent}
         my refresh_vars
+        my update_combo $EvalCombo $expression
     } on error err {
         {*}$say $err\n red
     }
