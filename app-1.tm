@@ -16,6 +16,7 @@ oo::singleton create App {
     variable CopyButton
     variable CopyMenu
     variable Vars
+    variable NextName
 }
 
 oo::define App constructor {} {
@@ -23,7 +24,8 @@ oo::define App constructor {} {
     tk appname Eval
     Config new ;# we need tk scaling done early
     my make_fonts
-    set Vars [dict create]
+    set Vars [dict create pi [expr {acos(-1)}]]
+    set NextName A
     my make_ui
 }
 
@@ -39,6 +41,7 @@ oo::define App method show {} {
 oo::define App method on_startup {} {
     .mf.pw sashpos 0 [expr {[winfo width .] / 2}]
     my do_help
+    my refresh_vars
     focus $EvalCombo
 }
 
@@ -76,7 +79,6 @@ oo::define App method make_widgets {} {
         -underline 0 -width 7 -compound left \
         -image [ui::icon edit-copy.svg $::ICON_SIZE]]
     set CopyMenu [menu .mf.ctrl.copyButton.menu]
-    $CopyButton state disabled
     ttk::button .mf.ctrl.optionButton -text Options… -underline 0 \
         -command [callback on_config] -width 7 -compound left \
         -image [ui::icon preferences-system.svg $::ICON_SIZE]
@@ -154,11 +156,10 @@ oo::define App method make_vartree {} {
     set name vartree
     set VarTree [ttk::treeview $frm.$name -selectmode browse -striped true \
         -columns {dec hex uni}]
-    set cwidth [font measure Sans WWW]
-    $VarTree column #0 -width [expr {$cwidth * 2}] -stretch true 
-    $VarTree column 0 -width $cwidth -stretch false -anchor e
-    $VarTree column 1 -width $cwidth -stretch false -anchor e
-    $VarTree column 2 -width $cwidth -stretch false -anchor e
+    $VarTree column #0 -width [font measure Sans WWW] -stretch true
+    $VarTree column 0 -width [font measure Sans WWWWWW] -anchor e
+    $VarTree column 1 -width [font measure Sans WWWW] -anchor e
+    $VarTree column 2 -width [font measure Sans WW] -anchor center
     $VarTree heading #0 -text Var
     $VarTree heading 0 -text Dec
     $VarTree heading 1 -text Hex
@@ -185,6 +186,12 @@ oo::define App method make_bindings {} {
     bind $RegexTextCombo <Return> [callback on_eval]
     bind $EvalCombo <Return> [callback on_eval]
     bind . <Alt-a> [callback on_about]
+    bind . <Alt-c> {
+        tk_popup .mf.ctrl.copyButton.menu \
+            [expr {[winfo rootx .mf.ctrl.copyButton]}] \
+            [expr {[winfo rooty .mf.ctrl.copyButton] + \
+                   [winfo height .mf.ctrl.copyButton]}]
+    }
     bind . <Alt-o> [callback on_config]
     bind . <Alt-q> [callback on_quit]
     bind . <Escape> [callback on_quit]
@@ -312,8 +319,6 @@ oo::define App method do_help {} {
     {*}$say ")" {purple indent}
     {*}$say ".\n\n" indent
     {*}$say "Some supported operators: " indent
-    {*}$say ! {purple indent}
-    {*}$say ", " indent
     {*}$say + {purple indent}
     {*}$say ", " indent
     {*}$say - {purple indent}
@@ -327,6 +332,7 @@ oo::define App method do_help {} {
     {*}$say ** {purple indent}
     {*}$say ".\n" indent
     {*}$say \n
+    $AnsText see end
 }
 
 oo::define App method do_regexp pattern {
@@ -356,7 +362,6 @@ oo::define App method do_regexp pattern {
         } on error err {
             {*}$say $err\n red
         }
-        {*}$say \n
         $AnsText see end
     }
 }
@@ -365,13 +370,12 @@ oo::define App method do_conversion txt {
     set txt [regsub -nocase {\mto\M} $txt ""]
     set say "$AnsText insert end"
     try {
-        {*}$say "conv: " {green indent}
-        {*}$say $txt\n {blue indent}
+        {*}$say $txt {blue indent}
+        {*}$say " → " {green indent}
         {*}$say [units::convert {*}$txt]\n {blue indent}
     } on error err {
         {*}$say $err\n red
     }
-    {*}$say \n
     $AnsText see end
 }
 
@@ -391,7 +395,6 @@ oo::define App method do_date txt {
                 set fmt [expr {$year2 < 100 ? "%y-%m-%d" : "%Y-%m-%d"}]
                 set to [clock scan $by_or_end -format $fmt]
                 set days [expr {abs($from - $to) / 86400}]
-                {*}$say "date diff: " {green indent}
                 {*}$say $start {blue indent}
                 {*}$say " - " {green indent}
                 {*}$say $by_or_end {blue indent}
@@ -401,7 +404,6 @@ oo::define App method do_date txt {
             } else {
                 set ans [clock add $from {*}"$op$by_or_end"]
                 set to [clock format $ans -format %Y-%m-%d]
-                {*}$say "date calc: " {green indent}
                 {*}$say "$start $op $by_or_end" {blue indent}
                 {*}$say " → " {green indent}
                 {*}$say $to\n {blue indent}
@@ -412,14 +414,111 @@ oo::define App method do_date txt {
     } else {
         {*}$say "invalid date expression\n" red
     }
-    {*}$say \n
     $AnsText see end
 }
 
 oo::define App method do_assignment txt {
-        puts do_assignment ;# TODO
+    set i [string first = $txt]
+    set name [string trim [string range $txt 0 $i-1]]
+    set expression [string trim [string range $txt $i+1 end]]
+    my evaluate $name $expression
 }
 
 oo::define App method do_expression txt {
-        puts do_expression ;# TODO
+    my evaluate [my next_name] [string trim $txt]
+}
+
+oo::define App method evaluate {name expression} {
+    set say "$AnsText insert end"
+    set expression [regsub -all -command {\m[[:alpha:]]\w*\M} \
+        $expression [lambda {vars match} \
+            { dict getdef $vars $match $match } $Vars]]
+    try {
+        set ans [expr $expression]
+        dict set Vars $name $ans
+        {*}$say $name {blue indent}
+        {*}$say " = " {green indent}
+        {*}$say [format %Lg\n $ans] {blue indent}
+        my refresh_vars
+    } on error err {
+        {*}$say $err\n red
+    }
+    $AnsText see end
+}
+
+oo::define App method refresh_vars {} {
+    my refresh_vartree
+    my refresh_copymenu
+}
+
+oo::define App method refresh_vartree {} {
+    $VarTree delete [$VarTree children {}]
+    foreach name [lsort -dictionary [dict keys $Vars]] {
+        set value [dict get $Vars $name]
+        set hex ""
+        set uni ""
+        if {[string is integer $value] && $value > 0 && $value < 0x10FFFF} {
+            set hex [format %X $value]
+            set uni [format %c $value]
+        }
+        $VarTree insert {} end -text $name \
+            -values "[format %Lg $value] $hex $uni"
+    }
+}
+
+oo::define App method refresh_copymenu {} {
+    $CopyMenu delete 0 end
+    set seen [dict create]
+    set names [lrange [dict keys $Vars] end-20 end]
+    foreach name [lsort -dictionary $names] {
+        set value [dict get $Vars $name]
+        set ul ""
+        set c [string toupper [string index $name 0]]
+        if {![dict exists $seen $c]} {
+            dict set seen $c ""
+            set ul 0
+        } else {
+            set c [string toupper [string index $name 1]]
+            if {![dict exists $seen $c]} {
+                dict set seen $c ""
+                set ul 1
+            }
+        }
+        $CopyMenu add command -command [callback on_copy $value] \
+            -label "$name  [format %Lg $value]" -underline $ul
+    }
+}
+
+oo::define App method on_copy value {
+    clipboard clear
+    clipboard append -format STRING -type STRING $value
+}
+
+oo::define App method next_name {} {
+    set name $NextName
+    set NextName [incr_str $NextName]
+    return $name
+}
+
+proc incr_str s {
+    set s [string toupper $s]
+    if {[string length $s] == 1} {
+        scan $s %c u
+        if {$u >= 65 && $u < 90} {
+            incr u
+            return [format %c $u]
+        } else {
+            return AA
+        }
+    } else {
+        scan [string index $s 0] %c x
+        scan [string index $s 1] %c y
+        if {$y >= 65 && $y < 90} {
+            incr y
+        } else {
+            incr x
+            set y 65
+        }
+        return [format %c%c $x $y]
+    }
 }
