@@ -1,5 +1,6 @@
 # Copyright © 2025 Mark Summerfield. All rights reserved.
 
+package require about_form
 package require config
 package require config_form
 package require lambda 1
@@ -79,6 +80,9 @@ oo::define App method make_widgets {} {
     ttk::button .mf.ctrl.optionButton -text Options… -underline 0 \
         -command [callback on_config] -width 7 -compound left \
         -image [ui::icon preferences-system.svg $::ICON_SIZE]
+    ttk::button .mf.ctrl.aboutButton -text About -underline 0 \
+        -command [callback on_about] -width 7 -compound left \
+        -image [ui::icon about.svg $::ICON_SIZE]
     ttk::button .mf.ctrl.quitButton -text Quit -underline 0 \
         -command [callback on_quit] -width 7 -compound left \
         -image [ui::icon quit.svg $::ICON_SIZE]
@@ -168,6 +172,7 @@ oo::define App method make_layout {} {
     pack .mf.ctrl.copyButton -side left
     pack [ttk::frame .mf.ctrl.pad] -side left -fill x -expand true
     pack .mf.ctrl.optionButton -side left
+    pack .mf.ctrl.aboutButton -side left
     pack .mf.ctrl.quitButton -side left
     pack .mf.ctrl -side bottom -fill x
     pack $RegexTextCombo -side bottom -fill x
@@ -178,9 +183,8 @@ oo::define App method make_layout {} {
 
 oo::define App method make_bindings {} {
     bind $RegexTextCombo <Return> [callback on_eval]
-    #bind $RegexTextCombo <Control-a> [callback on_select_all %W]
     bind $EvalCombo <Return> [callback on_eval]
-    #bind $EvalCombo <Control-a> [callback on_select_all %W]
+    bind . <Alt-a> [callback on_about]
     bind . <Alt-o> [callback on_config]
     bind . <Alt-q> [callback on_quit]
     bind . <Escape> [callback on_quit]
@@ -199,6 +203,11 @@ oo::define App method on_config {} {
             my make_fonts
         }
     }
+}
+
+oo::define App method on_about {} {
+    AboutForm new "A calculator-evaluator" \
+        https://github.com/mark-summerfield/eval
 }
 
 oo::define App method on_quit {} {
@@ -390,7 +399,12 @@ oo::define App method do_date txt {
                 {*}$say $days {blue indent}
                 {*}$say " days\n" {green indent}
             } else {
-                puts "do_date '$start' '$year1' '$op' '$by_or_end' '$year2'" ;# TODO
+                set ans [clock add $from {*}"$op$by_or_end"]
+                set to [clock format $ans -format %Y-%m-%d]
+                {*}$say "date calc: " {green indent}
+                {*}$say "$start $op $by_or_end" {blue indent}
+                {*}$say " → " {green indent}
+                {*}$say $to\n {blue indent}
             }
         } on error err {
             {*}$say $err\n red
@@ -398,6 +412,7 @@ oo::define App method do_date txt {
     } else {
         {*}$say "invalid date expression\n" red
     }
+    {*}$say \n
     $AnsText see end
 }
 

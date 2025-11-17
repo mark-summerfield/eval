@@ -18,7 +18,7 @@ oo::define AboutForm constructor {desc {url ""} {license GPLv3}} {
     set Desc $desc
     set Url $url
     set License $license
-    set Height [expr {11 + [regexp -all \n $desc]}]
+    set Height [expr {12 + [regexp -all \n $desc]}]
     my make_widgets
     my make_layout
     my make_bindings
@@ -63,7 +63,7 @@ oo::define AboutForm method on_click_url index {
         if {![string match -nocase http*://* $url]} {
             set url [string cat http:// $url]
         }
-        util::open_webpage $url
+        util::open_url $url
     }
 }
 
