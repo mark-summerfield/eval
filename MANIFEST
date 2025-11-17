@@ -1,3 +1,8 @@
+# TODO
+# - drop initial help text
+# - create modeless hide/show help window & Help button & F1
+# - create new icon from scratch (similar design to current)
+
 eval.tk
 app-1.tm
 app_eval-1.tm
