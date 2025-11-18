@@ -23,21 +23,21 @@ proc make_text_widget {parent framename} {
         ]
     set frm [ttk::frame $parent$framename]
     set name txt
-    set Text [text $frm.$name -wrap word]
-    $Text configure -font Sans
-    $Text tag configure indent -lmargin2 [font measure Sans "nn"]
-    $Text tag configure bold -font Bold
-    $Text tag configure italic -font Italic
-    $Text tag configure bolditalic -font BoldItalic
-    $Text tag configure ul -underline true
-    $Text tag configure highlight -background yellow
+    set txt [text $frm.$name -wrap word]
+    $txt configure -font Sans
+    $txt tag configure indent -lmargin2 [font measure Sans "• "]
+    $txt tag configure bold -font Bold
+    $txt tag configure italic -font Italic
+    $txt tag configure bolditalic -font BoldItalic
+    $txt tag configure ul -underline true
+    $txt tag configure highlight -background yellow
     dict for {key value} $COLOR_FOR_TAG {
-        $Text tag configure $key -foreground $value
+        $txt tag configure $key -foreground $value
     }
-    $Text tag configure center -justify center
-    $Text tag configure right -justify right
+    $txt tag configure center -justify center
+    $txt tag configure right -justify right
     ui::scrollize $frm $name vertical
-    return $Text
+    return $txt
 }
 
 proc incr_str s {

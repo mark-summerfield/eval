@@ -199,5 +199,5 @@ oo::define HelpForm method populate {} {
     {*}$w "• <Alt-A>" {blue indent}
     {*}$w " select all.\n" indent
     {*}$w "• <Alt-E>" {blue indent}
-    {*}$w " move focus to expression entry.\n" indent
+    {*}$w " move focus to expression entry." indent
 }
