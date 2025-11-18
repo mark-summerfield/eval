@@ -24,9 +24,9 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="0.90743815"
-     inkscape:cx="291.47992"
-     inkscape:cy="235.27774"
+     inkscape:zoom="0.9994222"
+     inkscape:cx="-4.5026016"
+     inkscape:cy="242.6402"
      inkscape:current-layer="layer1" />
   <defs
      id="defs2" />
@@ -35,7 +35,7 @@
      inkscape:groupmode="layer"
      id="layer1">
     <rect
-       style="opacity:0.998;fill:#d3bc5f;stroke:#d3bc5f;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:0;stroke-dasharray:none"
+       style="opacity:0.998;fill:#ac939d;stroke:#ac939d;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:0;stroke-dasharray:none"
        id="rect234"
        width="97.327415"
        height="97.327415"
@@ -63,7 +63,7 @@
        rx="0.72476768"
        ry="1.2689973" />
     <rect
-       style="opacity:0.998;fill:#a0892c;stroke:#504416;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:0;stroke-dasharray:none"
+       style="opacity:0.998;fill:#48373e;stroke:#48373e;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:0;stroke-dasharray:none"
        id="rect1048"
        width="3.7508142"
        height="3.7508142"
@@ -71,12 +71,12 @@
        y="62.405781" />
     <path
        id="rect1048-7"
-       style="opacity:0.998;fill:#a0892c;stroke:#504416;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:0"
+       style="opacity:0.998;fill:#48373e;stroke:#48373e;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:0"
        inkscape:transform-center-x="-2.0014993"
        inkscape:transform-center-y="-20.936272"
        d="m 28.920721,94.497368 h 3.750814 v 3.750814 h -3.750814 z" />
     <rect
-       style="opacity:0.998;fill:#a0892c;stroke:#504416;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:0;stroke-dasharray:none"
+       style="opacity:0.998;fill:#48373e;stroke:#48373e;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:0;stroke-dasharray:none"
        id="rect1048-6"
        width="3.7508142"
        height="3.7508142"
@@ -84,12 +84,12 @@
        y="62.405781" />
     <path
        id="rect1048-7-2"
-       style="opacity:0.998;fill:#a0892c;stroke:#504416;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:0"
+       style="opacity:0.998;fill:#48373e;stroke:#48373e;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:0"
        inkscape:transform-center-x="-2.0014993"
        inkscape:transform-center-y="-20.936272"
        d="m 61.417732,94.497368 h 3.750814 v 3.750814 h -3.750814 z" />
     <rect
-       style="opacity:0.998;fill:#786721;stroke:#786721;stroke-width:20.0001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:0;stroke-dasharray:none"
+       style="opacity:0.998;fill:#6c535d;stroke:#6c535d;stroke-width:20.0001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:0;stroke-dasharray:none"
        id="rect1048-7-2-2"
        width="3.7508142"
        height="36.912174"
@@ -100,48 +100,69 @@
     <g
        aria-label="+"
        id="text1268"
-       style="font-weight:bold;font-size:34.3689px;line-height:125%;font-family:'Nimbus Sans';-inkscape-font-specification:'Nimbus Sans Bold';letter-spacing:0px;word-spacing:0px;fill:#decd87;stroke:#504416;stroke-width:0.264583px">
+       style="font-weight:bold;font-size:34.3689px;line-height:125%;font-family:'Nimbus Sans';-inkscape-font-specification:'Nimbus Sans Bold';letter-spacing:0px;word-spacing:0px;fill:#e3dbde;stroke:#48373e;stroke-width:0.264583px">
       <path
          d="m 39.096217,62.236237 h -6.255139 v -6.25514 h -4.0899 v 6.25514 h -6.255139 v 4.089899 h 6.255139 v 6.25514 h 4.0899 v -6.25514 h 6.255139 z"
          id="path254"
-         style="fill:#decd87;stroke:#504416" />
+         style="fill:#e3dbde;stroke:#48373e" />
     </g>
     <g
        aria-label="-"
        transform="scale(1.2508458,0.79945906)"
        id="text1268-7"
-       style="font-weight:bold;font-size:42.9902px;line-height:125%;font-family:'Nimbus Sans';-inkscape-font-specification:'Nimbus Sans Bold';letter-spacing:0px;word-spacing:0px;fill:#decd87;stroke:#504416;stroke-width:0.264583px">
+       style="font-weight:bold;font-size:42.9902px;line-height:125%;font-family:'Nimbus Sans';-inkscape-font-specification:'Nimbus Sans Bold';letter-spacing:0px;word-spacing:0px;fill:#e3dbde;stroke:#48373e;stroke-width:0.264583px">
       <path
          d="M 56.44694,77.504017 H 44.753606 v 5.803677 H 56.44694 Z"
          id="path257"
-         style="fill:#decd87;stroke:#504416" />
+         style="fill:#e3dbde;stroke:#48373e" />
     </g>
     <g
-       aria-label="➗"
-       id="text1268-7-9"
-       style="font-weight:bold;font-size:21.5022px;line-height:125%;font-family:'Nimbus Sans';-inkscape-font-specification:'Nimbus Sans Bold';letter-spacing:0px;word-spacing:0px;fill:#decd87;stroke:#504416;stroke-width:0.264583px">
+       aria-label="-"
+       transform="matrix(1.2508458,0,0,0.61477504,-32.497011,46.941262)"
+       id="text1268-7-3"
+       style="font-weight:bold;font-size:42.9902px;line-height:125%;font-family:'Nimbus Sans';-inkscape-font-specification:'Nimbus Sans Bold';letter-spacing:0px;word-spacing:0px;fill:#e3dbde;stroke:#48373e;stroke-width:0.302194;stroke-dasharray:none">
       <path
-         d="m 32.040561,91.506432 h -2.50929 v -2.572285 h 2.50929 z m 6.173483,6.152485 H 23.378787 v -2.572285 h 14.835257 z m -6.173483,6.152483 h -2.50929 v -2.57228 h 2.50929 z"
-         id="path260"
-         style="fill:#decd87;stroke:#504416" />
+         d="M 56.44694,77.504017 H 44.753606 v 5.803677 H 56.44694 Z"
+         id="path257-6"
+         style="fill:#e3dbde;stroke:#48373e;stroke-width:0.302194;stroke-dasharray:none" />
+    </g>
+    <g
+       aria-label="-"
+       transform="matrix(0.31280269,0,0,0.79945906,14.968226,23.373551)"
+       id="text1268-7-3-5"
+       style="font-weight:bold;font-size:42.9902px;line-height:125%;font-family:'Nimbus Sans';-inkscape-font-specification:'Nimbus Sans Bold';letter-spacing:0px;word-spacing:0px;fill:#e3dbde;stroke:#48373e;stroke-width:0.529089px">
+      <path
+         d="M 56.44694,77.504017 H 44.753606 v 5.803677 H 56.44694 Z"
+         id="path257-6-3"
+         style="fill:#e3dbde;stroke:#48373e;stroke-width:0.529089px" />
+    </g>
+    <g
+       aria-label="-"
+       transform="matrix(0.31280269,0,0,0.79945906,14.968226,40.760796)"
+       id="text1268-7-3-5-5"
+       style="font-weight:bold;font-size:42.9902px;line-height:125%;font-family:'Nimbus Sans';-inkscape-font-specification:'Nimbus Sans Bold';letter-spacing:0px;word-spacing:0px;fill:#e3dbde;stroke:#48373e;stroke-width:0.529089px">
+      <path
+         d="M 56.44694,77.504017 H 44.753606 v 5.803677 H 56.44694 Z"
+         id="path257-6-3-6"
+         style="fill:#e3dbde;stroke:#48373e;stroke-width:0.529089px" />
     </g>
     <g
        aria-label="×"
        id="text1268-7-9-6"
-       style="font-weight:bold;font-size:34.3689px;line-height:125%;font-family:'Nimbus Sans';-inkscape-font-specification:'Nimbus Sans Bold';letter-spacing:0px;word-spacing:0px;fill:#decd87;stroke:#504416;stroke-width:0.264583px">
+       style="font-weight:bold;font-size:34.3689px;line-height:125%;font-family:'Nimbus Sans';-inkscape-font-specification:'Nimbus Sans Bold';letter-spacing:0px;word-spacing:0px;fill:#e3dbde;stroke:#48373e;stroke-width:0.264583px">
       <path
          d="m 67.726727,89.052197 -4.433589,4.433588 -4.433588,-4.433588 -2.886987,2.921357 4.433588,4.399219 -4.399219,4.399217 2.886987,2.88699 4.399219,-4.39922 4.39922,4.43359 2.886987,-2.88699 -4.399219,-4.433587 4.433588,-4.433588 z"
          id="path263"
-         style="fill:#decd87;stroke:#504416" />
+         style="fill:#e3dbde;stroke:#48373e" />
     </g>
     <g
        aria-label="="
        id="text1268-7-9-6-6"
-       style="font-weight:bold;font-size:34.3689px;line-height:125%;font-family:'Nimbus Sans';-inkscape-font-specification:'Nimbus Sans Bold';letter-spacing:0px;word-spacing:0px;fill:#decd87;stroke:#504416;stroke-width:0.264583px">
+       style="font-weight:bold;font-size:34.3689px;line-height:125%;font-family:'Nimbus Sans';-inkscape-font-specification:'Nimbus Sans Bold';letter-spacing:0px;word-spacing:0px;fill:#e3dbde;stroke:#48373e;stroke-width:0.264583px">
       <path
          d="M 104.10743,90.50367 H 87.472878 v 4.089899 h 16.634552 z m 0,8.248536 H 87.472878 v 4.089894 h 16.634552 z"
          id="path266"
-         style="fill:#decd87;stroke:#504416" />
+         style="fill:#e3dbde;stroke:#48373e" />
     </g>
   </g>
 </svg>
