@@ -30,7 +30,7 @@ oo::define ConfigForm method make_widgets {} {
     set config [Config new]
     tk::toplevel .configForm
     wm resizable .configForm false false
-    wm title .configForm "[tk appname] — Config"
+    wm title .configForm "[tk appname] — Options"
     ttk::frame .configForm.mf
     set tip tooltip::tooltip
     ttk::label .configForm.mf.scaleLabel -text "Application Scale" \

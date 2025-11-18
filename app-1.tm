@@ -3,6 +3,7 @@
 package require about_form
 package require config
 package require config_form
+package require help_form
 package require lambda 1
 package require misc
 package require ref
@@ -43,16 +44,6 @@ oo::define App method show {} {
 
 oo::define App method on_startup {} {
     .mf.pw sashpos 0 [expr {[winfo width .] / 2}]
-    set say "$AnsText insert end"
-    {*}$say "Enter " navy
-    {*}$say ? blue
-    {*}$say " or " navy
-    {*}$say help blue
-    {*}$say " and press " navy
-    {*}$say Return {blue bold}
-    {*}$say " for help.\n" navy
-    $AnsText mark set insert end
-    $AnsText see end
     my refresh_vars
     focus $EvalCombo
 }
@@ -68,6 +59,7 @@ oo::define App method prepare_ui {} {
     wm title . [tk appname]
     wm iconname . [tk appname]
     wm iconphoto . -default [ui::icon icon.svg]
+    wm minsize . 640 300
 }
 
 oo::define App method make_widgets {} {
@@ -95,6 +87,9 @@ oo::define App method make_widgets {} {
     ttk::button .mf.ctrl.optionButton -text Options… -underline 0 \
         -command [callback on_config] -width 7 -compound left \
         -image [ui::icon preferences-system.svg $::ICON_SIZE]
+    ttk::button .mf.ctrl.helpButton -text Help -underline 0 \
+        -command [callback on_help] -width 7 -compound left \
+        -image [ui::icon about.svg $::ICON_SIZE]
     ttk::button .mf.ctrl.aboutButton -text About -underline 0 \
         -command [callback on_about] -width 7 -compound left \
         -image [ui::icon about.svg $::ICON_SIZE]
@@ -108,47 +103,11 @@ oo::define App method prepare_combo {combo txt} {
     $combo set $txt
     $combo selection range 0 end
     ui::apply_edit_bindings $combo
-    puts prepare_combo
 }
 
 oo::define App method make_anstext {} {
-    const COLOR_FOR_TAG [dict create \
-        black "#000000" \
-        grey "#555555" \
-        navy "#000075" \
-        blue "#0000FF" \
-        lavender "#6767E0" \
-        cyan "#007272" \
-        teal "#469990" \
-        olive "#676700" \
-        green "#009C00" \
-        lime "#608000" \
-        maroon "#800000" \
-        brown "#9A6324" \
-        gold "#9A8100" \
-        orange "#CD8400" \
-        red "#FF0000" \
-        pink "#FF5B77" \
-        purple "#911EB4" \
-        magenta "#F032E6" \
-        ]
-    set frm [ttk::frame .mf.af]
-    set name anstext
-    set AnsText [text $frm.$name -wrap word]
-    $AnsText configure -font Sans
-    $AnsText tag configure indent -lmargin2 [font measure Sans "nn"]
-    $AnsText tag configure bold -font Bold
-    $AnsText tag configure italic -font Italic
-    $AnsText tag configure bolditalic -font BoldItalic
-    $AnsText tag configure ul -underline true
-    $AnsText tag configure highlight -background yellow
-    dict for {key value} $COLOR_FOR_TAG {
-        $AnsText tag configure $key -foreground $value
-    }
-    $AnsText tag configure center -justify center
-    $AnsText tag configure right -justify right
-    ui::scrollize $frm $name vertical
-    .mf.pw add $frm -weight 3
+    set AnsText [make_text_widget .mf .af]
+    .mf.pw add .mf.af -weight 3
 }
 
 oo::define App method make_fonts {} {
@@ -187,6 +146,7 @@ oo::define App method make_layout {} {
     pack .mf.ctrl.copyButton -side left {*}$opts
     pack [ttk::frame .mf.ctrl.pad] -side left -fill x -expand true {*}$opts
     pack .mf.ctrl.optionButton -side left {*}$opts
+    pack .mf.ctrl.helpButton -side left {*}$opts
     pack .mf.ctrl.aboutButton -side left {*}$opts
     pack .mf.ctrl.quitButton -side left {*}$opts
     pack .mf.ctrl -side bottom -fill x
@@ -199,6 +159,7 @@ oo::define App method make_layout {} {
 oo::define App method make_bindings {} {
     bind $RegexTextCombo <Return> [callback on_eval]
     bind $EvalCombo <Return> [callback on_eval]
+    bind . <F1> [callback on_help]
     bind . <Alt-a> [callback on_about]
     bind . <Alt-c> {
         tk_popup .mf.ctrl.copyButton.menu \
@@ -207,6 +168,7 @@ oo::define App method make_bindings {} {
                    [winfo height .mf.ctrl.copyButton]}]
     }
     bind . <Alt-e> {focus .mf.exprcombo}
+    bind . <Alt-h> [callback on_help]
     bind . <Alt-o> [callback on_config]
     bind . <Alt-q> [callback on_quit]
     bind . <Escape> [callback on_quit]
@@ -231,6 +193,8 @@ oo::define App method on_about {} {
     AboutForm new "A calculator-evaluator" \
         https://github.com/mark-summerfield/eval
 }
+
+oo::define App method on_help {} { HelpForm show }
 
 oo::define App method on_quit {} {
     [Config new] save [$EvalCombo get] [$RegexTextCombo get]
