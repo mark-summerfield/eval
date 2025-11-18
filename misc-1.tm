@@ -2,6 +2,7 @@
 
 proc make_text_widget {parent framename} {
     const COLOR_FOR_TAG [dict create \
+        white "#FFFFFF" \
         black "#000000" \
         grey "#555555" \
         navy "#000075" \

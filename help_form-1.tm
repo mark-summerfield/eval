@@ -46,50 +46,51 @@ oo::define HelpForm method make_bindings {} {
 
 oo::define HelpForm method on_done {} { my hide }
 
+# Note: hypot() & pow() have a non-breaking space
 oo::define HelpForm method populate {} {
     set w ".help_form.mf.hf.txt insert end"
-    {*}$w Eval {navy bold indent}
-    {*}$w " supports the following actions:\n" indent
-    {*}$w "• Expressions" {navy italic indent}
+    {*}$w "Actions:\n" {navy indent}
+    {*}$w "• Expression" {purple italic indent}
     {*}$w ", e.g., " indent
     {*}$w "(2 ** 32) - 1" {blue indent}
     {*}$w ", " indent
     {*}$w "19. / 7" {blue indent}
     {*}$w ".\n" indent
-    {*}$w "• Assignment expressions" {navy italic indent}
+    {*}$w "• Assignment expression" {purple italic indent}
     {*}$w ", e.g., " indent
     {*}$w "r = int(rand()*6) + 1" {blue indent}
     {*}$w ".\n" indent
-    {*}$w "• Tcl regexps" {navy italic indent}
+    {*}$w "• Tcl regexp" {purple italic indent}
     {*}$w " (and text for the regexp to match), e.g., " indent
     {*}$w "(\\w+)\\s*=\\s*(.*)" {blue indent}
     {*}$w ", and, e.g., " indent
     {*}$w "width = 17" {blue indent}
     {*}$w ".\n" indent
-    {*}$w "• Conversions" {navy italic indent}
+    {*}$w "• Conversion" {purple italic indent}
     {*}$w ", e.g., " indent
     {*}$w "69kg to stone" {blue indent}
     {*}$w " (the 'to' is optional).\n" indent
-    {*}$w "• Date expressions" {navy italic indent}
+    {*}$w "• Date expression" {purple italic indent}
     {*}$w ", e.g., " indent
     {*}$w "25-11-14 +120 days" {blue indent}
     {*}$w " or " indent
     {*}$w "25-11-14 - 25-7-19" {blue indent}
     {*}$w " (using YYYY-MM-DD or YY-MM-DD format).\n" indent
-    {*}$w "• Delete a variable: " {navy italic indent}
+    {*}$w "• Delete a variable: " {purple italic indent}
     {*}$w "enter " indent
     {*}$w "varname" {indent blue italic}
     {*}$w "=" {indent blue}
     {*}$w .\n indent
-    {*}$w "• Clear: " {navy italic indent}
+    {*}$w "• Clear: " {purple italic indent}
     {*}$w "enter " indent
     {*}$w "cls" {indent blue italic}
     {*}$w " or " indent
     {*}$w "clear" {indent blue italic}
     {*}$w ".\nPress " indent
-    {*}$w Return {blue bold indent}
+    {*}$w <Return> {blue indent}
     {*}$w " to perform action.\n\n" indent
-    {*}$w "Functions: " indent
+    {*}$w "Functions:\n" {navy indent}
+    {*}$w "• " {white indent}
     {*}$w abs( {purple indent}
     {*}$w x {italic purple indent}
     {*}$w ")" {purple indent}
@@ -136,7 +137,7 @@ oo::define HelpForm method populate {} {
     {*}$w ", " indent
     {*}$w hypot( {purple indent}
     {*}$w x {italic purple indent}
-    {*}$w ", " {purple indent}
+    {*}$w ", " {purple indent}
     {*}$w y {italic purple indent}
     {*}$w ")" {purple indent}
     {*}$w ", " indent
@@ -150,7 +151,7 @@ oo::define HelpForm method populate {} {
     {*}$w ", " indent
     {*}$w pow( {purple indent}
     {*}$w x {italic purple indent}
-    {*}$w ", " {purple indent}
+    {*}$w ", " {purple indent}
     {*}$w y {italic purple indent}
     {*}$w ")" {purple indent}
     {*}$w ", " indent
@@ -180,7 +181,7 @@ oo::define HelpForm method populate {} {
     {*}$w x {italic purple indent}
     {*}$w ")" {purple indent}
     {*}$w ".\n\n" indent
-    {*}$w "Operators: " indent
+    {*}$w "Operators: " {navy indent}
     {*}$w + {purple indent}
     {*}$w ", " indent
     {*}$w - {purple indent}
@@ -193,7 +194,7 @@ oo::define HelpForm method populate {} {
     {*}$w ", " indent
     {*}$w ** {purple indent}
     {*}$w ".\n\n" indent
-    {*}$w "Keypresses:\n" indent
+    {*}$w "Keypresses:\n" {navy indent}
     {*}$w "• <Escape>" {blue indent}
     {*}$w " quit.\n" indent
     {*}$w "• <Alt-A>" {blue indent}
