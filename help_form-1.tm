@@ -48,157 +48,162 @@ oo::define HelpForm method on_done {} { my hide }
 
 # Note: hypot() & pow() have a non-breaking space
 oo::define HelpForm method populate {} {
-    set w ".help_form.mf.hf.txt insert end"
-    {*}$w "Actions:\n" {navy indent}
-    {*}$w "• Expression" {purple italic indent}
-    {*}$w ", e.g., " indent
-    {*}$w "(2 ** 32) - 1" {blue indent}
-    {*}$w ", " indent
-    {*}$w "19. / 7" {blue indent}
-    {*}$w ".\n" indent
-    {*}$w "• Assignment expression" {purple italic indent}
-    {*}$w ", e.g., " indent
-    {*}$w "r = int(rand()*6) + 1" {blue indent}
-    {*}$w ".\n" indent
-    {*}$w "• Tcl regexp" {purple italic indent}
-    {*}$w " (and text for the regexp to match), e.g., " indent
-    {*}$w "(\\w+)\\s*=\\s*(.*)" {blue indent}
-    {*}$w ", and, e.g., " indent
-    {*}$w "width = 17" {blue indent}
-    {*}$w ".\n" indent
-    {*}$w "• Conversion" {purple italic indent}
-    {*}$w ", e.g., " indent
-    {*}$w "69kg to stone" {blue indent}
-    {*}$w " (the 'to' is optional).\n" indent
-    {*}$w "• Date expression" {purple italic indent}
-    {*}$w ", e.g., " indent
-    {*}$w "25-11-14 +120 days" {blue indent}
-    {*}$w " or " indent
-    {*}$w "25-11-14 - 25-7-19" {blue indent}
-    {*}$w " (using YYYY-MM-DD or YY-MM-DD format).\n" indent
-    {*}$w "• Delete a variable: " {purple italic indent}
-    {*}$w "enter " indent
-    {*}$w "varname" {indent blue italic}
-    {*}$w "=" {indent blue}
-    {*}$w .\n indent
-    {*}$w "• Clear: " {purple italic indent}
-    {*}$w "enter " indent
-    {*}$w "cls" {indent blue italic}
-    {*}$w " or " indent
-    {*}$w "clear" {indent blue italic}
-    {*}$w ".\nPress " indent
-    {*}$w <Return> {blue indent}
-    {*}$w " to perform action.\n\n" indent
-    {*}$w "Functions:\n" {navy indent}
-    {*}$w "• " {white indent}
-    {*}$w abs( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ", " indent
-    {*}$w acos( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ", " indent
-    {*}$w asin( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ", " indent
-    {*}$w atan( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ", " indent
-    {*}$w atan2( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ", " indent
-    {*}$w ceil( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ", " indent
-    {*}$w cos( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ", " indent
-    {*}$w cosh( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ", " indent
-    {*}$w exp( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ", " indent
-    {*}$w floor( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ", " indent
-    {*}$w fmod( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ", " indent
-    {*}$w hypot( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ", " {purple indent}
-    {*}$w y {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ", " indent
-    {*}$w log( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ", " indent
-    {*}$w log10( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ", " indent
-    {*}$w pow( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ", " {purple indent}
-    {*}$w y {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ", " indent
-    {*}$w rand() {purple indent}
-    {*}$w ", " indent
-    {*}$w round( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ", " indent
-    {*}$w sin( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ", " indent
-    {*}$w sinh( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ", " indent
-    {*}$w sqrt( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ", " indent
-    {*}$w tan( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ", " indent
-    {*}$w tanh( {purple indent}
-    {*}$w x {italic purple indent}
-    {*}$w ")" {purple indent}
-    {*}$w ".\n\n" indent
-    {*}$w "Operators: " {navy indent}
-    {*}$w + {purple indent}
-    {*}$w ", " indent
-    {*}$w - {purple indent}
-    {*}$w ", " indent
-    {*}$w * {purple indent}
-    {*}$w ", " indent
-    {*}$w / {purple indent}
-    {*}$w ", " indent
-    {*}$w % {purple indent}
-    {*}$w ", " indent
-    {*}$w ** {purple indent}
-    {*}$w ".\n\n" indent
-    {*}$w "Keypresses:\n" {navy indent}
-    {*}$w "• <Escape>" {blue indent}
-    {*}$w " quit.\n" indent
-    {*}$w "• <Alt-A>" {blue indent}
-    {*}$w " select all.\n" indent
-    {*}$w "• <Alt-E>" {blue indent}
-    {*}$w " move focus to expression entry." indent
+    foreach pair {
+            {"Actions:\n" {navy}}
+            {"• Expression" {purple italic}}
+            {", e.g., " {}}
+            {"(2 ** 32) - 1" {blue}}
+            {", " {}}
+            {"19. / 7" {blue}}
+            {".\n" {}}
+            {"• Assignment expression" {purple italic}}
+            {", e.g., " {}}
+            {"r = int(rand()*6) + 1" {blue}}
+            {".\n" {}}
+            {"• Tcl regexp" {purple italic}}
+            {" (and text for the regexp to match), e.g., " {}}
+            {"(\\w+)\\s*=\\s*(.*)" {blue}}
+            {", and, e.g., " {}}
+            {"width = 17" {blue}}
+            {".\n" {}}
+            {"• Conversion" {purple italic}}
+            {", e.g., " {}}
+            {"69kg to stone" {blue}}
+            {" (the 'to' is optional).\n" {}}
+            {"• Date expression" {purple italic}}
+            {", e.g., " {}}
+            {"25-11-14 +120 days" {blue}}
+            {" or " {}}
+            {"25-11-14 - 25-7-19" {blue}}
+            {" (using YYYY-MM-DD or YY-MM-DD format).\n" {}}
+            {"• Delete a variable: " {purple italic}}
+            {"enter " {}}
+            {"varname" {blue italic}}
+            {"=" {blue}}
+            {.\n {}}
+            {"• Clear: " {purple italic}}
+            {"enter " {}}
+            {"cls" {blue italic}}
+            {" or " {}}
+            {"clear" {blue italic}}
+            {".\nPress " {}}
+            {<Return> {blue}}
+            {" to perform action.\n\n" {}}
+            {"Functions:\n" {navy}}
+            {"• " {white}}
+            {abs( {purple}}
+            {x {italic purple}}
+            {")" {purple}}
+            {", " {}}
+            {acos( {purple}}
+            {x {italic purple}}
+            {")" {purple}}
+            {", " {}}
+            {asin( {purple}}
+            {x {italic purple}}
+            {")" {purple}}
+            {", " {}}
+            {atan( {purple}}
+            {x {italic purple}}
+            {")" {purple}}
+            {", " {}}
+            {atan2( {purple}}
+            {x {italic purple}}
+            {")" {purple}}
+            {", " {}}
+            {ceil( {purple}}
+            {x {italic purple}}
+            {")" {purple}}
+            {", " {}}
+            {cos( {purple}}
+            {x {italic purple}}
+            {")" {purple}}
+            {", " {}}
+            {cosh( {purple}}
+            {x {italic purple}}
+            {")" {purple}}
+            {", " {}}
+            {exp( {purple}}
+            {x {italic purple}}
+            {")" {purple}}
+            {", " {}}
+            {floor( {purple}}
+            {x {italic purple}}
+            {")" {purple}}
+            {", " {}}
+            {fmod( {purple}}
+            {x {italic purple}}
+            {")" {purple}}
+            {", " {}}
+            {hypot( {purple}}
+            {x {italic purple}}
+            {", " {purple}}
+            {y {italic purple}}
+            {")" {purple}}
+            {", " {}}
+            {log( {purple}}
+            {x {italic purple}}
+            {")" {purple}}
+            {", " {}}
+            {log10( {purple}}
+            {x {italic purple}}
+            {")" {purple}}
+            {", " {}}
+            {pow( {purple}}
+            {x {italic purple}}
+            {", " {purple}}
+            {y {italic purple}}
+            {")" {purple}}
+            {", " {}}
+            {rand() {purple}}
+            {", " {}}
+            {round( {purple}}
+            {x {italic purple}}
+            {")" {purple}}
+            {", " {}}
+            {sin( {purple}}
+            {x {italic purple}}
+            {")" {purple}}
+            {", " {}}
+            {sinh( {purple}}
+            {x {italic purple}}
+            {")" {purple}}
+            {", " {}}
+            {sqrt( {purple}}
+            {x {italic purple}}
+            {")" {purple}}
+            {", " {}}
+            {tan( {purple}}
+            {x {italic purple}}
+            {")" {purple}}
+            {", " {}}
+            {tanh( {purple}}
+            {x {italic purple}}
+            {")" {purple}}
+            {".\n\n" {}}
+            {"Operators: " {navy}}
+            {+ {purple}}
+            {", " {}}
+            {- {purple}}
+            {", " {}}
+            {* {purple}}
+            {", " {}}
+            {/ {purple}}
+            {", " {}}
+            {% {purple}}
+            {", " {}}
+            {** {purple}}
+            {".\n\n" {}}
+            {"Keypresses:\n" {navy}}
+            {"• <Escape>" {blue}}
+            {" quit.\n" {}}
+            {"• <Alt-A>" {blue}}
+            {" select all.\n" {}}
+            {"• <Alt-E>" {blue}}
+            {" move focus to expression entry." {}}} {
+        lassign $pair txt tags
+        lappend tags indent
+        .help_form.mf.hf.txt insert end $txt $tags
+    }
+    .help_form.mf.hf.txt configure -state disabled
 }
