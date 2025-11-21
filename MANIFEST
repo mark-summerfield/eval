@@ -15,6 +15,8 @@ abstract_form-1.tm
 message_form-1.tm
 ui-1.tm
 
+README.md
+
 st.sh
 
 # vim: syn=yaml
