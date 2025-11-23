@@ -214,15 +214,18 @@ oo::define App method refresh_vars {} {
     my refresh_copymenu
 }
 
+oo::define App classmethod by_size_alpha {a b} {
+    set asize [string length $a]
+    set bsize [string length $b]
+    if {$asize < $bsize} { return -1 }
+    if {$asize > $bsize} { return 1 }
+    string compare -nocase $a $b
+}
+
 oo::define App method refresh_vartree {} {
     $VarTree delete [$VarTree children {}]
-    foreach name [lsort -command [lambda {a b} {
-                set asize [string length $a]
-                set bsize [string length $b]
-                if {$asize < $bsize} { return -1 }
-                if {$asize > $bsize} { return 1 }
-                string compare -nocase $a $b
-            }] [dict keys $Vars]] {
+    foreach name [lsort -command [callback by_size_alpha] \
+            [dict keys $Vars]] {
         set value [dict get $Vars $name]
         set hex ""
         set uni ""
@@ -239,8 +242,8 @@ oo::define App method refresh_vartree {} {
 oo::define App method refresh_copymenu {} {
     $CopyMenu delete 0 end
     set seen [dict create]
-    set names [lrange [dict keys $Vars] end-20 end]
-    foreach name [lsort -dictionary $names] {
+    set names [lsort -command [callback by_size_alpha] [dict keys $Vars]]
+    foreach name [lrange $names 0 20] {
         set value [dict get $Vars $name]
         set ul ""
         set c [string toupper [string index $name 0]]
