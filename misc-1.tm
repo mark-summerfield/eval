@@ -44,22 +44,42 @@ proc make_text_widget {parent framename} {
 proc incr_str s {
     set s [string toupper $s]
     if {[string length $s] == 1} {
-        scan $s %c u
-        if {$u >= 65 && $u < 90} {
-            incr u
-            return [format %c $u]
+        scan $s %c x
+        if {$x >= 65 && $x < 90} {
+            incr x
+            return [format %c $x]
         } else {
             return AA
         }
-    } else {
+    } elseif {[string length $s] == 2} {
         scan [string index $s 0] %c x
         scan [string index $s 1] %c y
         if {$y >= 65 && $y < 90} {
             incr y
-        } else {
+        } elseif {$x >= 65 && $x < 90} {
             incr x
             set y 65
+        } else {
+            return AAA
         }
         return [format %c%c $x $y]
+    } elseif {[string length $s] == 3} {
+        scan [string index $s 0] %c x
+        scan [string index $s 1] %c y
+        scan [string index $s 2] %c z
+        if {$z >= 65 && $z < 90} {
+            incr z
+        } elseif {$y >= 65 && $y < 90} {
+            incr y
+            set z 65
+        } elseif {$x >= 65 && $x < 90} {
+            incr x
+            set y 65
+            set z 65
+        } else {
+            error "incr_str is limited to A → ZZZ"
+        }
+        return [format %c%c%c $x $y $z]
     }
+    error "incr_str is limited to A → ZZZ"
 }
