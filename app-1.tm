@@ -216,7 +216,13 @@ oo::define App method refresh_vars {} {
 
 oo::define App method refresh_vartree {} {
     $VarTree delete [$VarTree children {}]
-    foreach name [lsort -dictionary [dict keys $Vars]] {
+    foreach name [lsort -command [lambda {a b} {
+                set asize [string length $a]
+                set bsize [string length $b]
+                if {$asize < $bsize} { return -1 }
+                if {$asize > $bsize} { return 1 }
+                string compare -nocase $a $b
+            }] [dict keys $Vars]] {
         set value [dict get $Vars $name]
         set hex ""
         set uni ""
