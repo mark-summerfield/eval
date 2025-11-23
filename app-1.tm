@@ -222,7 +222,7 @@ oo::define App method refresh_vartree {} {
         set uni ""
         if {[string is integer $value] && $value > 0 && $value < 0x10FFFF} {
             set hex [format %X $value]
-            set uni [format %c $value]
+            set uni [format \\%c $value]
         }
         set fmt [expr {[string is integer $value] ? "%Ld" : "%Lg"}]
         $VarTree insert {} end -text $name \
@@ -259,8 +259,11 @@ oo::define App method on_copy value {
     clipboard append -format STRING -type STRING $value
 }
 
+# Unique names never changed A…Z; resused names AA…AZ
 oo::define App method next_name {} {
     set name $NextName
-    set NextName [incr_str $NextName]
+    if {[set NextName [incr_str $NextName]] eq "BA"} {
+        set NextName AA
+    }
     return $name
 }
