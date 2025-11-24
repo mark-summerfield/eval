@@ -207,7 +207,19 @@ oo::define HelpForm method populate {} {
             {Var {blue italic}}
             {" copy variable’s value to the clipboard. (Note that the " {}}
             {"Copy" {blue}}
-            {" menu provides access to the last ten assigned values).\n" {}}
+            {" menu provides access to the last ten assigned values)" {}}
+            {.\n\n {}}
+            {Variables: {navy}}
+            {" " {}}
+            {A {purple}}
+            {" to " {}}
+            {Z {purple}}
+            {" and user variables are assigned once and not reused\
+              (unless explicitly assigned to). Variables " {}}
+            {AA {purple}}
+            {" to " {}}
+            {ZZ {purple}}
+            {" are reused as necessary." {}}
         } {
         lassign $pair txt tags
         lappend tags indent
