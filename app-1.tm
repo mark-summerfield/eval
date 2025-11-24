@@ -18,6 +18,7 @@ oo::singleton create App {
     variable CopyButton
     variable CopyMenu
     variable Vars
+    variable VarsList
     variable NextName
 }
 
@@ -29,6 +30,7 @@ oo::define App constructor {} {
     Config new ;# we need tk scaling done early
     my make_fonts
     set Vars [dict create pi [expr {acos(-1)}]]
+    set VarsList [list]
     set NextName A
     my make_ui
 }
@@ -128,7 +130,7 @@ oo::define App method make_vartree {} {
     set frm [ttk::frame .mf.vf]
     set name vartree
     set VarTree [ttk::treeview $frm.$name -selectmode browse -striped true \
-        -columns {dec hex uni}]
+        -columns {dec hex uni} -selecttype item]
     $VarTree column #0 -width [font measure Sans WWW]
     $VarTree column 0 -width [font measure Sans WWWWWW] -anchor e
     $VarTree column 1 -width [font measure Sans WWWW] -anchor e
@@ -157,6 +159,7 @@ oo::define App method make_layout {} {
 }
 
 oo::define App method make_bindings {} {
+    bind $VarTree <<TreeviewSelect>> [callback on_tree_click]
     bind $RegexTextCombo <Return> [callback on_eval]
     bind $EvalCombo <Return> [callback on_eval]
     bind . <F1> [callback on_help]
@@ -242,15 +245,14 @@ oo::define App method refresh_vartree {} {
 oo::define App method refresh_copymenu {} {
     $CopyMenu delete 0 end
     set seen [dict create]
-    set names [lsort -command [callback by_size_alpha] [dict keys $Vars]]
-    foreach name [lrange $names 0 20] {
-        set value [dict get $Vars $name]
+    foreach name [lrange $VarsList end-10 end] {
+        if {[set value [dict getdef $Vars $name ""]] eq ""} { continue }
         set ul ""
         set c [string toupper [string index $name 0]]
         if {![dict exists $seen $c]} {
             dict set seen $c ""
             set ul 0
-        } else {
+        } elseif {[string length $name] > 1} {
             set c [string toupper [string index $name 1]]
             if {![dict exists $seen $c]} {
                 dict set seen $c ""
@@ -260,6 +262,16 @@ oo::define App method refresh_copymenu {} {
         set fmt [expr {[string is integer $value] ? "%Ld" : "%Lg"}]
         $CopyMenu add command -command [callback on_copy $value] \
             -label "$name  [format $fmt $value]" -underline $ul
+    }
+}
+
+oo::define App method on_tree_click {} {
+    if {[set item [$VarTree focus]] ne ""} {
+        if {[set name [$VarTree item $item -text]] ne ""} {
+            if {[set value [dict getdef $Vars $name ""]] ne ""} {
+                my on_copy $value
+            }
+        }
     }
 }
 

@@ -221,9 +221,20 @@ oo::define App method evaluate {name expression} {
         {*}$say " = " {green indent}
         set fmt [expr {[string is integer $value] ? "%Ld" : "%Lg"}]
         {*}$say [format $fmt\n $value] {blue indent}
+        my update_vars_list $name
         my refresh_vars
         my update_combo $EvalCombo $expression
     } on error err {
         {*}$say $err\n red
+    }
+}
+
+oo::define App method update_vars_list name {
+    if {[set i [lsearch -exact $VarsList $name]] > -1} {
+        set VarsList [lremove $VarsList $i]
+    }
+    lappend VarsList $name
+    if {[llength $VarsList] > 50} {
+        set VarsList [lrange $VarsList end-50 end]
     }
 }

@@ -193,14 +193,22 @@ oo::define HelpForm method populate {} {
             {% {purple}}
             {", " {}}
             {** {purple}}
-            {".\n\n" {}}
-            {"Keypresses:\n" {navy}}
+            {.\n\n {}}
+            {Interactions:\n {navy}}
             {"• <Escape>" {blue}}
             {" quit.\n" {}}
+            {"• <F1>" {blue}}
+            {" pop-up this help window.\n" {}}
             {"• <Alt-A>" {blue}}
             {" select all.\n" {}}
             {"• <Alt-E>" {blue}}
-            {" move focus to expression entry." {}}} {
+            {" move focus to expression entry.\n" {}}
+            {"• <Click> " {blue}}
+            {Var {blue italic}}
+            {" copy variable’s value to the clipboard. (Note that the " {}}
+            {"Copy" {blue}}
+            {" menu provides access to the last ten assigned values).\n" {}}
+        } {
         lassign $pair txt tags
         lappend tags indent
         .help_form.mf.hf.txt insert end $txt $tags
