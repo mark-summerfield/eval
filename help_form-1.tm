@@ -86,6 +86,10 @@ oo::define HelpForm method populate {} {
             {"cls" {blue italic}}
             {" or " {}}
             {"clear" {blue italic}}
+            {.\n {}}
+            {"• Spellcheck" {purple italic}}
+            {", enter a word to check, e.g., " {}}
+            {"committee" {blue}}
             {".\nPress " {}}
             {<Return> {blue}}
             {" to perform action.\n\n" {}}

@@ -3,9 +3,7 @@
 oo::define App method on_eval {} {
     set eval_txt [string trim [$EvalCombo get]]
     if {$eval_txt eq ""} { return }
-    if {$eval_txt eq "?" | $eval_txt eq "help"} {
-        my do_help
-    } elseif {$eval_txt eq "cls" | $eval_txt eq "clear"} {
+    if {$eval_txt eq "cls" | $eval_txt eq "clear"} {
         $AnsText delete 1.0 end
     } elseif {[regexp {\d{2,4}-\d\d?-\d\d?|\mtoday\M} $eval_txt]} {
         my do_date $eval_txt
@@ -18,95 +16,13 @@ oo::define App method on_eval {} {
         my do_regexp $eval_txt
     } elseif {[string first = $eval_txt] > -1} {
         my do_assignment $eval_txt
+    } elseif {[regexp {^[A-Za-z]+$} $eval_txt]} {
+        my do_spellcheck $eval_txt
     } else {
         my do_expression $eval_txt
     }
     $AnsText mark set insert end
     $AnsText see end
-}
-
-oo::define App method do_help {} {
-    set say "$AnsText insert end"
-    {*}$say Help\n {bold magenta center}
-    {*}$say "Enter one of the following:\n" indent
-    {*}$say "Help: " {navy italic indent}
-    {*}$say ? {blue indent}
-    {*}$say " or " indent
-    {*}$say help {blue indent}
-    {*}$say " to show this help text.\n" indent
-    {*}$say Expression {navy italic indent}
-    {*}$say ", e.g., " indent
-    {*}$say "rand() * 5" {blue indent}
-    {*}$say " or " indent
-    {*}$say "19 / 7" {blue indent}
-    {*}$say ".\n" indent
-    {*}$say "Assignment expression" {navy italic indent}
-    {*}$say ", e.g., " indent
-    {*}$say "a = 14 ** 2" {blue indent}
-    {*}$say ".\n" indent
-    {*}$say "Tcl regexp" {navy italic indent}
-    {*}$say " (and text for the regexp to match), e.g., " indent
-    {*}$say "(\\w+)\\s*=\\s*(.*)" {blue indent}
-    {*}$say ", and, e.g., " indent
-    {*}$say "width = 17" {blue indent}
-    {*}$say ".\n" indent
-    {*}$say Conversion {navy italic indent}
-    {*}$say ", e.g., " indent
-    {*}$say "69kg to stone" {blue indent}
-    {*}$say " (the 'to' is optional).\n" indent
-    {*}$say "Date expression" {navy italic indent}
-    {*}$say ", e.g., " indent
-    {*}$say "25-11-14 +120 days" {blue indent}
-    {*}$say " or " indent
-    {*}$say "25-11-14 - 25-7-19" {blue indent}
-    {*}$say "." indent
-    {*}$say "\nDelete a variable: " {navy italic indent}
-    {*}$say "enter " indent
-    {*}$say "varname" {indent blue italic}
-    {*}$say "=" {indent blue}
-    {*}$say "\nClear: " {navy italic indent}
-    {*}$say "enter " indent
-    {*}$say "cls" {indent blue italic}
-    {*}$say " or " indent
-    {*}$say "clear" {indent blue italic}
-    {*}$say ".\nPress " indent
-    {*}$say Return {blue bold indent}
-    {*}$say " to calculate.\n\n" indent
-    {*}$say "Some supported functions: " indent
-    {*}$say hypot( {purple indent}
-    {*}$say x {italic purple indent}
-    {*}$say ", " {purple indent}
-    {*}$say y {italic purple indent}
-    {*}$say ")" {purple indent}
-    {*}$say ", " indent
-    {*}$say log( {purple indent}
-    {*}$say x {italic purple indent}
-    {*}$say ")" {purple indent}
-    {*}$say ", " indent
-    {*}$say log10( {purple indent}
-    {*}$say x {italic purple indent}
-    {*}$say ")" {purple indent}
-    {*}$say ", " indent
-    {*}$say rand() {purple indent}
-    {*}$say ", " indent
-    {*}$say sqrt( {purple indent}
-    {*}$say x {italic purple indent}
-    {*}$say ")" {purple indent}
-    {*}$say ".\n\n" indent
-    {*}$say "Some supported operators: " indent
-    {*}$say + {purple indent}
-    {*}$say ", " indent
-    {*}$say - {purple indent}
-    {*}$say ", " indent
-    {*}$say * {purple indent}
-    {*}$say ", " indent
-    {*}$say / {purple indent}
-    {*}$say ", " indent
-    {*}$say % {purple indent}
-    {*}$say ", " indent
-    {*}$say ** {purple indent}
-    {*}$say ".\n" indent
-    {*}$say \n
 }
 
 oo::define App method do_regexp pattern {
@@ -202,6 +118,28 @@ oo::define App method do_assignment txt {
         my refresh_vars
     } else {
         my evaluate $name $expression
+    }
+}
+
+oo::define App method do_spellcheck txt {
+    set say "$AnsText insert end"
+    set cmd [list aspell -a]
+    set reply [exec {*}$cmd << $txt 1>]
+    if {[string index $reply end-1] eq "*"} {
+        {*}$say "$txt ✔\n" {green indent}
+    } else {
+        set suggestions [list]
+        set i [string first : $reply]
+        if {$i > -1} {
+            set reply [string trim [string range $reply \
+                [expr {$i + 1}] end]]
+            foreach suggestion [split $reply ,] {
+                lappend suggestions [string trim $suggestion]
+            }
+        }
+        {*}$say "$txt ✘\n" {red indent}
+        {*}$say "suggestions:\n" {green indent}
+        {*}$say "   [join $suggestions " "]\n" {blue indent}
     }
 }
 
