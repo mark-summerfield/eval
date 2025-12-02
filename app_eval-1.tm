@@ -49,7 +49,7 @@ oo::define App method do_regexp pattern {
             } else {
                 {*}$say "no match\n" magenta
             }
-            my update_combo $EvalCombo $re_text
+            my update_combo $EvalCombo $pattern
         } on error err {
             {*}$say $err\n red
         }
@@ -117,7 +117,8 @@ oo::define App method do_assignment txt {
         dict unset Vars $name
         my refresh_vars
     } else {
-        my evaluate $name $expression
+        my evaluate $name $expression false
+        my update_combo $EvalCombo $txt
     }
 }
 
@@ -127,6 +128,7 @@ oo::define App method do_spellcheck txt {
     set reply [exec {*}$cmd << $txt 1>]
     if {[string index $reply end-1] eq "*"} {
         {*}$say "$txt ✔\n" {green indent}
+        my update_combo $EvalCombo $txt
     } else {
         set suggestions [list]
         set i [string first : $reply]
@@ -147,7 +149,7 @@ oo::define App method do_expression txt {
     my evaluate [my next_name] [string trim $txt]
 }
 
-oo::define App method evaluate {name expression} {
+oo::define App method evaluate {name expression {record true}} {
     set say "$AnsText insert end"
     set expression [regsub -all -command {\m[[:alpha:]]\w*\M} \
         $expression [lambda {vars match} \
@@ -161,7 +163,7 @@ oo::define App method evaluate {name expression} {
         {*}$say [format $fmt\n $value] {blue indent}
         my update_vars_list $name
         my refresh_vars
-        my update_combo $EvalCombo $expression
+        if {$record} { my update_combo $EvalCombo $expression }
     } on error err {
         {*}$say $err\n red
     }

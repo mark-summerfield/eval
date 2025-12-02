@@ -10,8 +10,7 @@ oo::singleton create Config {
     variable Geometry
     variable FontFamily
     variable FontSize
-    variable LastFilename
-    variable LastEval
+    variable LastEvals
     variable LastRegexpText
 }
 
@@ -21,8 +20,7 @@ oo::define Config constructor {} {
     set Geometry ""
     set FontFamily [font configure TkDefaultFont -family]
     set FontSize [font configure TkDefaultFont -size]
-    set LastFilename ""
-    set LastEval ""
+    set LastEvals [list]
     set LastRegexpText ""
     if {[file exists $Filename] && [file size $Filename]} {
         set ini [ini::open $Filename -encoding utf-8 r]
@@ -36,9 +34,14 @@ oo::define Config constructor {} {
             set Geometry [ini::value $ini General Geometry $Geometry]
             set FontFamily [ini::value $ini General FontFamily $FontFamily]
             set FontSize [ini::value $ini General FontSize $FontSize]
-            set LastFilename [ini::value $ini General LastFilename \
-                $LastFilename]
-            set LastEval [ini::value $ini General LastEval $LastEval]
+            catch {
+                foreach i [lseq 1 9] {
+                    if {[set an_eval [ini::value $ini LastEvals \
+                            Eval$i ""]] ne ""} {
+                        lappend LastEvals $an_eval
+                    }
+                }
+            }
             set LastRegexpText [ini::value $ini General LastRegexpText \
                 $LastRegexpText]
         } on error err {
@@ -49,7 +52,7 @@ oo::define Config constructor {} {
     }
 }
 
-oo::define Config method save {eval_txt re_txt} {
+oo::define Config method save {lastevals re_txt} {
     set ini [ini::open $Filename -encoding utf-8 w]
     try {
         ini::set $ini General Scale [tk scaling]
@@ -57,8 +60,10 @@ oo::define Config method save {eval_txt re_txt} {
         ini::set $ini General Geometry [wm geometry .]
         ini::set $ini General FontFamily [my family]
         ini::set $ini General FontSize [my size]
-        ini::set $ini General LastFilename $LastFilename
-        ini::set $ini General LastEval $eval_txt
+        set i 0
+        foreach an_eval [lrange $lastevals 0 8] {
+            ini::set $ini LastEvals Eval[incr i] $an_eval
+        }
         ini::set $ini General LastRegexpText $re_txt
         ini::commit $ini
     } finally {
@@ -81,13 +86,10 @@ oo::define Config method set_size size { set FontSize $size }
 oo::define Config method family {} { return $FontFamily }
 oo::define Config method set_family family { set FontFamily $family }
 
-oo::define Config method lastfilename {} { return $LastFilename }
-oo::define Config method set_lastfilename lastfilename {
-    set LastFilename $lastfilename
+oo::define Config method lastevals {} { return $LastEvals }
+oo::define Config method set_lastevals lastevals {
+    set LastEvals $lastevals
 }
-
-oo::define Config method lasteval {} { return $LastEval }
-oo::define Config method set_lasteval lasteval { set LastEval $lasteval }
 
 oo::define Config method lastregexptext {} { return $LastRegexpText }
 oo::define Config method set_lastregexptext lastregexptext {

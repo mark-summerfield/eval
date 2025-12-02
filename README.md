@@ -1,7 +1,8 @@
 # Eval
 
 `eval.tk` is a GUI “calculator-evaluator” which can compute expressions, Tcl
-regexps, simple conversions, and simple date expressions.
+regexps, simple conversions, and simple date expressions, as well as
+spellchecking single words.
 
 ![Screenshot](images/screenshot.png)
 

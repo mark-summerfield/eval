@@ -48,6 +48,7 @@ oo::define App method on_startup {} {
     .mf.pw sashpos 0 [expr {[winfo width .] / 2}]
     my refresh_vars
     focus $EvalCombo
+    $EvalCombo selection range 0 end
 }
 
 oo::define App method make_ui {} {
@@ -70,16 +71,22 @@ oo::define App method make_widgets {} {
     ttk::panedwindow .mf.pw -orient horizontal
     my make_anstext
     my make_vartree
+    set values [$config lastevals]
     set EvalCombo [ttk::combobox .mf.exprcombo -font Sans \
         -placeholder "enter expr or conversion or date expr or\
-        regexp (Alt+E for focus)" ]
+        regexp (Alt+E for focus)" -values $values]
+    if {[llength $values]} {
+        $EvalCombo set [lindex $values 0]
+        $EvalCombo selection range 0 end
+    }
+    ui::apply_edit_bindings $EvalCombo
     set RegexTextCombo [ttk::combobox .mf.regextextcombo -font Sans \
         -placeholder "enter text for regexp to match"]
     if {[set re_txt [$config lastregexptext]] ne ""} {
-        my prepare_combo $RegexTextCombo $re_txt
-    }
-    if {[set eval_txt [$config lasteval]] ne ""} {
-        my prepare_combo $EvalCombo $eval_txt
+        $RegexTextCombo configure -values [list $re_txt]
+        $RegexTextCombo set $re_txt
+        $RegexTextCombo selection range 0 end
+        ui::apply_edit_bindings $RegexTextCombo
     }
     ttk::frame .mf.ctrl
     set CopyButton [ttk::menubutton .mf.ctrl.copyButton -text Copy \
@@ -98,13 +105,6 @@ oo::define App method make_widgets {} {
     ttk::button .mf.ctrl.quitButton -text Quit -underline 0 \
         -command [callback on_quit] -width 7 -compound left \
         -image [ui::icon quit.svg $::ICON_SIZE]
-}
-
-oo::define App method prepare_combo {combo txt} {
-    $combo configure -values [list $txt]
-    $combo set $txt
-    $combo selection range 0 end
-    ui::apply_edit_bindings $combo
 }
 
 oo::define App method make_anstext {} {
@@ -200,16 +200,16 @@ oo::define App method on_about {} {
 oo::define App method on_help {} { HelpForm show }
 
 oo::define App method on_quit {} {
-    [Config new] save [$EvalCombo get] [$RegexTextCombo get]
+    [Config new] save [$EvalCombo cget -values] [$RegexTextCombo get]
     exit
 }
 
 oo::define App method update_combo {combo value} {
     set values [$combo cget -values]
-    if {$value ni $values} {
-        lappend values $value
-        $combo configure -values $values
+    if {[set i [lsearch -exact $values $value]] > -1} {
+        set values [lremove $values $i]
     }
+    $combo configure -values [linsert $values 0 $value]
 }
 
 oo::define App method refresh_vars {} {
