@@ -93,18 +93,28 @@ oo::define App method make_widgets {} {
         -underline 0 -width 7 -compound left \
         -image [ui::icon edit-copy.svg $::ICON_SIZE]]
     set CopyMenu [menu .mf.ctrl.copyButton.menu]
-    ttk::button .mf.ctrl.optionButton -text Options… -underline 0 \
-        -command [callback on_config] -width 7 -compound left \
-        -image [ui::icon preferences-system.svg $::ICON_SIZE]
-    ttk::button .mf.ctrl.helpButton -text Help -underline 0 \
-        -command [callback on_help] -width 7 -compound left \
-        -image [ui::icon about.svg $::ICON_SIZE]
-    ttk::button .mf.ctrl.aboutButton -text About -underline 0 \
-        -command [callback on_about] -width 7 -compound left \
-        -image [ui::icon about.svg $::ICON_SIZE]
-    ttk::button .mf.ctrl.quitButton -text Quit -underline 0 \
-        -command [callback on_quit] -width 7 -compound left \
-        -image [ui::icon quit.svg $::ICON_SIZE]
+    ttk::menubutton .mf.ctrl.moreButton -text More -underline 0 -width 7 \
+        -compound left -image [ui::icon menu.svg $::ICON_SIZE]
+    menu .mf.ctrl.moreButton.menu
+    .mf.ctrl.moreButton.menu add command -label Tables… -underline 0 \
+        -compound left -command [callback on_tables] \
+        -image [ui::icon tables.svg $::MENU_ICON_SIZE]
+    .mf.ctrl.moreButton.menu add separator
+    .mf.ctrl.moreButton.menu add command -label Config… -underline 0 \
+        -compound left -command [callback on_config] \
+        -image [ui::icon preferences-system.svg $::MENU_ICON_SIZE]
+    .mf.ctrl.moreButton.menu add separator
+    .mf.ctrl.moreButton.menu add command -label About -underline 0 \
+        -compound left -command [callback on_about] \
+        -image [ui::icon about.svg $::MENU_ICON_SIZE]
+    .mf.ctrl.moreButton.menu add command -label Help -underline 0 \
+        -compound left -command [callback on_help] -accelerator F1 \
+        -image [ui::icon help.svg $::MENU_ICON_SIZE]
+    .mf.ctrl.moreButton.menu add separator
+    .mf.ctrl.moreButton.menu add command -label Quit -underline 0 \
+        -compound left -command [callback on_quit] -accelerator Ctrl+Q \
+        -image [ui::icon quit.svg $::MENU_ICON_SIZE]
+    .mf.ctrl.moreButton configure -menu .mf.ctrl.moreButton.menu
 }
 
 oo::define App method make_anstext {} {
@@ -147,10 +157,7 @@ oo::define App method make_layout {} {
     const opts "-pady 3 -padx 3"
     pack .mf.ctrl.copyButton -side left {*}$opts
     pack [ttk::frame .mf.ctrl.pad] -side left -fill x -expand true {*}$opts
-    pack .mf.ctrl.optionButton -side left {*}$opts
-    pack .mf.ctrl.helpButton -side left {*}$opts
-    pack .mf.ctrl.aboutButton -side left {*}$opts
-    pack .mf.ctrl.quitButton -side left {*}$opts
+    pack .mf.ctrl.moreButton -side right {*}$opts
     pack .mf.ctrl -side bottom -fill x
     pack $RegexTextCombo -side bottom -fill x {*}$opts
     pack $EvalCombo -side bottom -fill x {*}$opts
@@ -171,11 +178,19 @@ oo::define App method make_bindings {} {
                    [winfo height .mf.ctrl.copyButton]}]
     }
     bind . <Alt-e> {focus .mf.exprcombo}
-    bind . <Alt-h> [callback on_help]
-    bind . <Alt-o> [callback on_config]
-    bind . <Alt-q> [callback on_quit]
+    bind . <Alt-m> {
+        tk_popup .mf.ctrl.moreButton.menu \
+            [expr {[winfo rootx .mf.ctrl.moreButton]}] \
+            [expr {[winfo rooty .mf.ctrl.moreButton] + \
+                   [winfo height .mf.ctrl.moreButton]}]
+    }
+    bind . <Control-q> [callback on_quit]
     bind . <Escape> [callback on_quit]
     wm protocol . WM_DELETE_WINDOW [callback on_quit]
+}
+
+oo::define App method on_tables {} {
+    puts "on_tables: modeless window with Notebook of ASCII Greek NATO"
 }
 
 oo::define App method on_config {} {
