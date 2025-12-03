@@ -7,6 +7,7 @@ package require help_form
 package require lambda 1
 package require misc
 package require ref
+package require tables_form
 package require ui
 package require units 2
 
@@ -97,7 +98,7 @@ oo::define App method make_widgets {} {
         -compound left -image [ui::icon menu.svg $::ICON_SIZE]
     menu .mf.ctrl.moreButton.menu
     .mf.ctrl.moreButton.menu add command -label Tables… -underline 0 \
-        -compound left -command [callback on_tables] \
+        -compound left -command [callback on_tables] -accelerator Ctrl+T \
         -image [ui::icon tables.svg $::MENU_ICON_SIZE]
     .mf.ctrl.moreButton.menu add separator
     .mf.ctrl.moreButton.menu add command -label Config… -underline 0 \
@@ -129,6 +130,7 @@ oo::define App method make_fonts {} {
     foreach name {Sans Bold Italic BoldItalic} {
         catch { font delete $name }
     }
+    font create Mono -family CommitMono -size [expr {$size + 1}]
     font create Sans -family $family -size $size
     font create Bold -family $family -size $size -weight bold
     font create Italic -family $family -size $size -slant italic
@@ -185,13 +187,12 @@ oo::define App method make_bindings {} {
                    [winfo height .mf.ctrl.moreButton]}]
     }
     bind . <Control-q> [callback on_quit]
+    bind . <Control-t> [callback on_tables]
     bind . <Escape> [callback on_quit]
     wm protocol . WM_DELETE_WINDOW [callback on_quit]
 }
 
-oo::define App method on_tables {} {
-    puts "on_tables: modeless window with Notebook of ASCII Greek NATO"
-}
+oo::define App method on_tables {} { TablesForm show }
 
 oo::define App method on_config {} {
     set config [Config new]
