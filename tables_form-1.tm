@@ -58,6 +58,14 @@ oo::define TablesForm method populate {} {
     my populate_nato
 }
 
+oo::define TablesForm method PrepareTextWidget txt {
+    $txt tag configure navy -foreground navy
+    $txt tag configure green -foreground green
+    $txt tag configure bg0 -background #EAEAEA
+    $txt tag configure bg1 -background #FAFAFA
+    $txt tag configure sans -font Sans
+}
+
 oo::define TablesForm method populate_ascii {} {
     set txt .tables_form.mf.nb.afrm.txt
     my PrepareTextWidget $txt
@@ -96,14 +104,14 @@ oo::define TablesForm method populate_ascii {} {
 		 {"" "GS" "Group Separator"}
 		 {"" "RS" "Record Separator"}
 		 {"" "US" "Unit Separator"}
-		 {"" "SPC" "Space"}} {
+		 {" " "SPC" "Space"}} {
         lassign $row c name desc
         set flip [expr {!$flip}]
         set bg bg$flip
         $txt insert end \t[expr {$c eq "" ? "�" : $c}] "navy $bg"
         $txt insert end \t[format %02X [incr cp]] $bg
         $txt insert end \t$name "navy $bg"
-        if {$desc ne ""} { $txt insert end \t$desc "green $bg" }
+        if {$desc ne ""} { $txt insert end \t$desc "green $bg sans" }
         $txt insert end \n $bg
     }
     foreach cp [lseq 0x21 0xFF] {
@@ -113,13 +121,6 @@ oo::define TablesForm method populate_ascii {} {
         $txt insert end \t[format %02X $cp]\n $bg
     }
     $txt mark set insert 1.0
-}
-
-oo::define TablesForm method PrepareTextWidget txt {
-    $txt tag configure navy -foreground navy
-    $txt tag configure green -foreground green
-    $txt tag configure bg0 -background #EAEAEA
-    $txt tag configure bg1 -background #FAFAFA
 }
 
 oo::define TablesForm method populate_greek {} {
@@ -159,7 +160,7 @@ oo::define TablesForm method populate_greek {} {
         $txt insert end \t[format %02X [scan $uc %c]] $bg
         $txt insert end \t$lc "navy $bg"
         $txt insert end \t[format %02X [scan $lc %c]] $bg
-        $txt insert end \t$name\n "green $bg"
+        $txt insert end \t$name\n "green $bg sans"
     }
 }
 
