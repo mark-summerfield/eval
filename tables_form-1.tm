@@ -64,6 +64,7 @@ oo::define TablesForm method PrepareTextWidget txt {
     $txt tag configure bg0 -background #EAEAEA
     $txt tag configure bg1 -background #FAFAFA
     $txt tag configure sans -font Sans
+    # TODO compute & return n-width for use with -tabs
 }
 
 oo::define TablesForm method populate_ascii {} {

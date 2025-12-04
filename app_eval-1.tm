@@ -124,7 +124,11 @@ oo::define App method do_assignment txt {
 
 oo::define App method do_spellcheck txt {
     set say "$AnsText insert end"
-    set cmd [list aspell -a]
+    if {[set aspell [auto_execok aspell]] eq ""} {
+        {*}$say "Cannot find `aspell` executable\n" red
+        return
+    }
+    set cmd [list $aspell -a]
     set reply [exec {*}$cmd << $txt 1>]
     if {[string index $reply end-1] eq "*"} {
         {*}$say "$txt ✔\n" {green indent}
