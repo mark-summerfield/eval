@@ -64,13 +64,15 @@ oo::define TablesForm method PrepareTextWidget txt {
     $txt tag configure bg0 -background #EAEAEA
     $txt tag configure bg1 -background #FAFAFA
     $txt tag configure sans -font Sans
-    # TODO compute & return n-width for use with -tabs
 }
 
 oo::define TablesForm method populate_ascii {} {
     set txt .tables_form.mf.nb.afrm.txt
     my PrepareTextWidget $txt
-    $txt configure -tabs {2m center 15m right 20m left 32m left} -font Mono
+    set cw [font measure Mono n]
+    $txt configure -font Mono \
+        -tabs "[expr {$cw * 2}] center [expr {$cw * 7}] right \
+               [expr {$cw * 9}] left [expr {$cw * 14}] left"
     set flip 0
     set cp -1
     foreach row {{"" NUL Null}
@@ -127,8 +129,11 @@ oo::define TablesForm method populate_ascii {} {
 oo::define TablesForm method populate_greek {} {
     set txt .tables_form.mf.nb.gfrm.txt
     my PrepareTextWidget $txt
+    set cw [font measure Mono n]
     $txt configure -font Mono \
-        -tabs {2m center 15m right 20m center 25m left 35m left}
+        -tabs "$cw center [expr {$cw * 6}] right \
+               [expr {$cw * 8}] center [expr {$cw * 9}] left \
+               [expr {$cw * 14}] left"
     set flip 0
     foreach row {{Α α Alpha}
 		 {Β β Beta}
@@ -168,7 +173,8 @@ oo::define TablesForm method populate_greek {} {
 oo::define TablesForm method populate_nato {} {
     set txt .tables_form.mf.nb.nfrm.txt
     my PrepareTextWidget $txt
-    $txt configure -font Mono -tabs {25m left}
+    set width [font measure Sans CharlieXX]
+    $txt configure -font Sans -tabs "$width left"
     set words [list Alpha Bravo Charlie Delta Echo Foxtrot Golf Hotel \
                India Juliet Kilo Lima Mike November Oscar Papa Quebec \
                Romeo Sierra Tango Uniform Victor Whiskey X-ray Yankee Zulu]
