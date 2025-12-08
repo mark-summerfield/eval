@@ -24,7 +24,10 @@ proc make_text_widget {parent framename} {
         ]
     set frm [ttk::frame $parent$framename]
     set name txt
-    set txt [text $frm.$name -wrap word]
+    set sa [scrollutil::scrollarea $frm.sa]
+    set txt [text $frm.sa.$name -wrap word]
+    $sa setwidget $txt
+    pack $sa -fill both -expand 1
     $txt configure -font Sans
     $txt tag configure indent -lmargin2 [font measure Sans "• "]
     $txt tag configure bold -font Bold
@@ -37,7 +40,6 @@ proc make_text_widget {parent framename} {
     }
     $txt tag configure center -justify center
     $txt tag configure right -justify right
-    ui::scrollize $frm $name vertical
     return $txt
 }
 

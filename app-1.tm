@@ -7,6 +7,7 @@ package require help_form
 package require lambda 1
 package require misc
 package require ref
+package require scrollutil_tile 2
 package require tables_form
 package require ui
 package require units 2
@@ -141,8 +142,11 @@ oo::define App method make_fonts {} {
 oo::define App method make_vartree {} {
     set frm [ttk::frame .mf.vf]
     set name vartree
-    set VarTree [ttk::treeview $frm.$name -selectmode browse -striped true \
-        -columns {dec hex uni} -selecttype item]
+    set sa [scrollutil::scrollarea $frm.sa]
+    set VarTree [ttk::treeview $frm.sa.$name -selectmode browse \
+        -striped true -columns {dec hex uni} -selecttype item]
+    $sa setwidget $VarTree
+    pack $sa -fill both -expand 1
     $VarTree column #0 -width [font measure Sans WWW]
     $VarTree column 0 -width [font measure Sans WWWWWW] -anchor e
     $VarTree column 1 -width [font measure Sans WWWW] -anchor e
@@ -151,7 +155,6 @@ oo::define App method make_vartree {} {
     $VarTree heading 0 -text Dec
     $VarTree heading 1 -text Hex
     $VarTree heading 2 -text Uni
-    ui::scrollize $frm $name both
     .mf.pw add $frm -weight 1
 }
 
