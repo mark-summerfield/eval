@@ -33,7 +33,7 @@ proc make_text_widget {parent framename} {
     $txt tag configure bold -font Bold
     $txt tag configure italic -font Italic
     $txt tag configure bolditalic -font BoldItalic
-    $txt tag configure ul -underline true
+    $txt tag configure ul -underline 1
     $txt tag configure highlight -background yellow
     dict for {key value} $COLOR_FOR_TAG {
         $txt tag configure $key -foreground $value

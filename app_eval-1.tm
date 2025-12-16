@@ -117,7 +117,7 @@ oo::define App method do_assignment txt {
         dict unset Vars $name
         my refresh_vars
     } else {
-        my evaluate $name $expression false
+        my evaluate $name $expression
         my update_combo $EvalCombo $txt
     }
 }
@@ -153,7 +153,7 @@ oo::define App method do_expression txt {
     my evaluate [my next_name] [string trim $txt]
 }
 
-oo::define App method evaluate {name expression {record true}} {
+oo::define App method evaluate {name expression} {
     set say "$AnsText insert end"
     set expression [regsub -all -command {\m[[:alpha:]]\w*\M} \
         $expression [lambda {vars match} \
@@ -167,7 +167,7 @@ oo::define App method evaluate {name expression {record true}} {
         {*}$say [format $fmt\n $value] {blue indent}
         my update_vars_list $name
         my refresh_vars
-        if {$record} { my update_combo $EvalCombo $expression }
+        my update_combo $EvalCombo $expression
     } on error err {
         {*}$say $err\n red
     }

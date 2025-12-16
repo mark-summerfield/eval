@@ -40,8 +40,8 @@ oo::define TablesForm method make_widgets {} {
 oo::define TablesForm method make_layout {} {
     set opts "-padx 3 -pady 3"
     pack .tables_form.mf.the_button -side bottom {*}$opts
-    pack .tables_form.mf.nb -fill both -expand true {*}$opts
-    pack .tables_form.mf -fill both -expand true
+    pack .tables_form.mf.nb -fill both -expand 1 {*}$opts
+    pack .tables_form.mf -fill both -expand 1
 }
 
 oo::define TablesForm method make_bindings {} {

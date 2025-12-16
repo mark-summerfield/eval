@@ -11,7 +11,7 @@ tcl::tm::path add $APPPATH
 package require app
 package require units
 
-const VERSION 1.3.1
+const VERSION 1.3.2
 units::new stone 14lb
 units::new point 0.013888888888888888in
 units::new pt 1point

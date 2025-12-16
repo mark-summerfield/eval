@@ -144,7 +144,7 @@ oo::define App method make_vartree {} {
     set name vartree
     set sa [scrollutil::scrollarea $frm.sa]
     set VarTree [ttk::treeview $frm.sa.$name -selectmode browse \
-        -striped true -columns {dec hex uni} -selecttype item]
+        -striped 1 -columns {dec hex uni} -selecttype item]
     $sa setwidget $VarTree
     pack $sa -fill both -expand 1
     $VarTree column #0 -width [font measure Sans WWW]
@@ -161,13 +161,13 @@ oo::define App method make_vartree {} {
 oo::define App method make_layout {} {
     const opts "-pady 3 -padx 3"
     pack .mf.ctrl.copyButton -side left {*}$opts
-    pack [ttk::frame .mf.ctrl.pad] -side left -fill x -expand true {*}$opts
+    pack [ttk::frame .mf.ctrl.pad] -side left -fill x -expand 1 {*}$opts
     pack .mf.ctrl.moreButton -side right {*}$opts
     pack .mf.ctrl -side bottom -fill x
     pack $RegexTextCombo -side bottom -fill x {*}$opts
     pack $EvalCombo -side bottom -fill x {*}$opts
-    pack .mf.pw -fill both -expand true
-    pack .mf -fill both -expand true
+    pack .mf.pw -fill both -expand 1
+    pack .mf -fill both -expand 1
 }
 
 oo::define App method make_bindings {} {
@@ -199,7 +199,7 @@ oo::define App method on_tables {} { TablesForm show }
 
 oo::define App method on_config {} {
     set config [Config new]
-    set ok [Ref new false]
+    set ok [Ref new 0]
     set family [$config family]
     set size [$config size]
     set form [ConfigForm new $ok]

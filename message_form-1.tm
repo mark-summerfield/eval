@@ -35,7 +35,7 @@ oo::define MessageForm method make_widgets {title body_text button_text \
         error   { set color pink }
     }
     tk::toplevel .message_form
-    wm resizable .message_form false false
+    wm resizable .message_form 0 0
     wm title .message_form $title
     ttk::style configure MessageForm.TFrame -background $color
     ttk::frame .message_form.mf -style MessageForm.TFrame
@@ -49,9 +49,9 @@ oo::define MessageForm method make_widgets {title body_text button_text \
 
 oo::define MessageForm method make_layout {} {
     set opts "-padx 3 -pady 3"
-    pack .message_form.mf.label -fill both -expand true {*}$opts
+    pack .message_form.mf.label -fill both -expand 1 {*}$opts
     pack .message_form.mf.the_button -side bottom {*}$opts
-    pack .message_form.mf -fill both -expand true
+    pack .message_form.mf -fill both -expand 1
 }
 
 oo::define MessageForm method make_bindings kind {

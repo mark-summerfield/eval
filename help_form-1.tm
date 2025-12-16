@@ -42,8 +42,8 @@ oo::define HelpForm method make_widgets {} {
 oo::define HelpForm method make_layout {} {
     set opts "-padx 3 -pady 3"
     pack .help_form.mf.the_button -side bottom {*}$opts
-    pack [$Text ttk_frame] -fill both -expand true {*}$opts
-    pack .help_form.mf -fill both -expand true
+    pack [$Text ttk_frame] -fill both -expand 1 {*}$opts
+    pack .help_form.mf -fill both -expand 1
 }
 
 oo::define HelpForm method make_bindings {} {

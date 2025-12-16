@@ -16,7 +16,7 @@ oo::singleton create Config {
 
 oo::define Config constructor {} {
     set Filename [util::get_ini_filename]
-    set Blinking true
+    set Blinking 1
     set Geometry ""
     set FontFamily [font configure TkDefaultFont -family]
     set FontSize [font configure TkDefaultFont -size]
