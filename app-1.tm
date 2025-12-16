@@ -176,19 +176,11 @@ oo::define App method make_bindings {} {
     bind $EvalCombo <Return> [callback on_eval]
     bind . <F1> [callback on_help]
     bind . <Alt-a> [callback on_about]
-    bind . <Alt-c> {
-        tk_popup .mf.ctrl.copyButton.menu \
-            [expr {[winfo rootx .mf.ctrl.copyButton]}] \
-            [expr {[winfo rooty .mf.ctrl.copyButton] + \
-                   [winfo height .mf.ctrl.copyButton]}]
-    }
+    bind . <Alt-c> {ui::popup_menu .mf.ctrl.copyButton.menu \
+                    .mf.ctrl.copyButton}
     bind . <Alt-e> {focus .mf.exprcombo}
-    bind . <Alt-m> {
-        tk_popup .mf.ctrl.moreButton.menu \
-            [expr {[winfo rootx .mf.ctrl.moreButton]}] \
-            [expr {[winfo rooty .mf.ctrl.moreButton] + \
-                   [winfo height .mf.ctrl.moreButton]}]
-    }
+    bind . <Alt-m> {ui::popup_menu .mf.ctrl.moreButton.menu \
+                    .mf.ctrl.moreButton}
     bind . <Control-q> [callback on_quit]
     bind . <Control-t> [callback on_tables]
     bind . <Escape> [callback on_quit]

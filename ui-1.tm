@@ -54,3 +54,8 @@ proc ui::on_ctrl_bs widget {
 }
 
 proc ui::on_ctrl_a widget { $widget selection range 0 end }
+
+proc ui::popup_menu {menu widget} {
+    tk_popup $menu [expr {[winfo rootx $widget]}] \
+        [expr {[winfo rooty $widget] + [winfo height $widget]}]
+}
