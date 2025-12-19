@@ -128,7 +128,7 @@ oo::define App method make_fonts {} {
     set config [Config new]
     set family [$config family]
     set size [$config size]
-    foreach name {Sans Bold Italic BoldItalic} {
+    foreach name {Mono Sans Bold Italic BoldItalic} {
         catch { font delete $name }
     }
     font create Mono -family CommitMono -size [expr {$size + 1}]
