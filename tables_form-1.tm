@@ -67,7 +67,7 @@ oo::define TablesForm method PrepareTextWidget txt {
 }
 
 oo::define TablesForm method populate_ascii {} {
-    set txt .tables_form.mf.nb.afrm.txt
+    set txt .tables_form.mf.nb.afrm.sa.txt
     my PrepareTextWidget $txt
     set cw [font measure Mono n]
     $txt configure -font Mono \
@@ -127,7 +127,7 @@ oo::define TablesForm method populate_ascii {} {
 }
 
 oo::define TablesForm method populate_greek {} {
-    set txt .tables_form.mf.nb.gfrm.txt
+    set txt .tables_form.mf.nb.gfrm.sa.txt
     my PrepareTextWidget $txt
     set cw [font measure Mono n]
     $txt configure -font Mono \
@@ -171,7 +171,7 @@ oo::define TablesForm method populate_greek {} {
 }
 
 oo::define TablesForm method populate_nato {} {
-    set txt .tables_form.mf.nb.nfrm.txt
+    set txt .tables_form.mf.nb.nfrm.sa.txt
     my PrepareTextWidget $txt
     set width [font measure Sans CharlieXX]
     $txt configure -font Sans -tabs "$width left"
