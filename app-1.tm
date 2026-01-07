@@ -245,11 +245,11 @@ oo::define App method refresh_vartree {} {
         set uni ""
         if {[string is integer $value] && $value > 0 && $value < 0x10FFFF} {
             set hex [format %X $value]
-            set uni [format \\%c $value]
+            set uni [format %c $value]
         }
         set fmt [expr {[string is integer $value] ? "%Ld" : "%Lg"}]
         $VarTree insert {} end -text $name \
-            -values "[format $fmt $value] $hex $uni"
+            -values [list [format $fmt $value] $hex $uni]
     }
 }
 
