@@ -133,6 +133,7 @@ oo::define App method do_spellcheck txt {
     if {[string index $reply end-1] eq "*"} {
         {*}$say "$txt ✔\n" {green indent}
         my update_combo $EvalCombo $txt
+        if {$::HAS_TLS} { my show_word_info $txt }
     } else {
         set suggestions [list]
         set i [string first : $reply]
@@ -146,6 +147,36 @@ oo::define App method do_spellcheck txt {
         {*}$say "$txt ✘\n" {red indent}
         {*}$say "suggestions:\n" {green indent}
         {*}$say "   [join $suggestions " "]\n" {blue indent}
+    }
+}
+
+oo::define App method show_word_info word {
+    set token [http::geturl $::DICT_URL/$word]
+    try {
+        if {[http::status $token] eq "ok"} {
+            set data [http::data $token]]
+            set definitions [word_data_get_definitions $data]
+            if {$definitions eq {}} { continue }
+            set synonyms [word_data_get_synonyms $data]
+            my write_list Definition $definitions    
+            if {[llength $synonyms]} { my write_list Synonym $synonyms }
+        }
+    } finally {
+        http::cleanup $token
+    }
+}
+
+oo::define App method write_list {name lst} {
+    set say "$AnsText insert end"
+    if {[llength $lst] == 1} {
+        {*}$say "$name: " {italic lavender}
+        {*}$say [lindex $lst 0]\n {brown indent}
+    } else {
+        {*}$say "${name}s:\n" {italic lavender}
+        foreach i [lseq 1 [llength $lst]] x $lst {
+            {*}$say "$i " {olive indent}
+            {*}$say $x\n {brown indent}
+        }
     }
 }
 

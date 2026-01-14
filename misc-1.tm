@@ -85,3 +85,21 @@ proc incr_str s {
     }
     error "incr_str is limited to A → ZZZ"
 }
+
+proc word_data_get_definitions data {
+    set d [dict create]
+    foreach match [regexp -all -inline {\"definition\":\"[^\"]+\"} $data] {
+        dict set d [string trim [lindex [split $match :] 1] "\""] {}
+    }
+    dict keys $d
+}
+
+proc word_data_get_synonyms data {
+    set d [dict create]
+    foreach match [regexp -all -inline {\"synonyms\":\[[^\]]+\]} $data] {
+        foreach synonym [split [lindex [split $match :] 1] ,] {
+            dict set d [string trim $synonym "\[\]\""] {}
+        }
+    }
+    dict keys $d
+}
