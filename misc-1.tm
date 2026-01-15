@@ -103,3 +103,20 @@ proc word_data_get_synonyms data {
     }
     dict keys $d
 }
+
+proc get_random_words filename {
+    set words [list]
+    set lines [split [readFile $filename] \n]
+    for {set i [expr {int(floor(rand() * [llength $lines]))}]} \
+            {$i < [llength $lines]} {incr i} {
+        set line [lindex $lines $i]
+        if {![string match {*['’]s} $line] &&
+                [string first " " $line] == -1} {
+            set word [string tolower $line]
+            if {[string length $word] > 5} {
+                lappend words $word
+            }
+        }
+    }
+    return $words
+}

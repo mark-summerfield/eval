@@ -5,6 +5,8 @@ oo::define App method on_eval {} {
     if {$eval_txt eq ""} { return }
     if {$eval_txt eq "cls" | $eval_txt eq "clear"} {
         $AnsText delete 1.0 end
+    } elseif {$eval_txt eq "rand(word)" || $eval_txt eq "random(word)"} {
+        my do_random_word
     } elseif {[regexp {\d{2,4}-\d\d?-\d\d?|\mtoday\M} $eval_txt]} {
         my do_date $eval_txt
     } elseif {[regexp -expanded {(\m|\d)(meter|km|kilo|kg|second|
@@ -23,6 +25,17 @@ oo::define App method on_eval {} {
     }
     $AnsText mark set insert end
     $AnsText see end
+}
+
+oo::define App method do_random_word {} {
+    my update_combo $EvalCombo rand(word)
+    if {![llength $Words]} {
+        set Words [get_random_words /usr/share/dict/words]
+    }
+    set say "$AnsText insert end"
+    set word [lrandom $Words]
+    {*}$say "$word\n" blue
+    if {$::HAS_TLS} { my show_word_info $word }
 }
 
 oo::define App method do_regexp pattern {
@@ -156,7 +169,10 @@ oo::define App method show_word_info word {
         if {[http::status $token] eq "ok"} {
             set data [http::data $token]]
             set definitions [word_data_get_definitions $data]
-            if {$definitions eq {}} { continue }
+            if {$definitions eq {}} {
+                $AnsText insert end "no definition found\n" {italic orange}
+                return
+            }
             set synonyms [word_data_get_synonyms $data]
             my write_list Definition $definitions    
             if {[llength $synonyms]} { my write_list Synonym $synonyms }

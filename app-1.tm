@@ -22,6 +22,7 @@ oo::singleton create App {
     variable Vars
     variable VarsList
     variable NextName
+    variable Words
 }
 
 package require app_eval
@@ -34,6 +35,7 @@ oo::define App constructor {} {
     set Vars [dict create pi [expr {acos(-1)}]]
     set VarsList [list]
     set NextName A
+    set Words {}
     my make_ui
 }
 
