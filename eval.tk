@@ -17,6 +17,7 @@ if {$::HAS_TLS} {
     ::http::register https 443 ::tls::socket
     const DICT_URL https://api.dictionaryapi.dev/api/v2/entries/en
 }
+const ASPELL [auto_execok aspell]
 
 const VERSION 1.4.0
 units::new stone 14lb

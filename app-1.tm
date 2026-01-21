@@ -53,6 +53,17 @@ oo::define App method on_startup {} {
     my refresh_vars
     focus $EvalCombo
     $EvalCombo selection range 0 end
+    set say "$AnsText insert end"
+    if {$::ASPELL eq {}} {
+        {*}$say "Can’t find " brown
+        {*}$say aspell maroon
+        {*}$say " so can’t spellcheck.\n" brown
+    }
+    if {!$::HAS_TLS} {
+        {*}$say "Can’t find " brown
+        {*}$say tls maroon
+        {*}$say " so can’t lookup word definitions.\n" brown
+    }
 }
 
 oo::define App method make_ui {} {

@@ -18,7 +18,7 @@ oo::define App method on_eval {} {
         my do_regexp $eval_txt
     } elseif {[string first = $eval_txt] > -1} {
         my do_assignment $eval_txt
-    } elseif {[regexp {^[A-Za-z]+$} $eval_txt]} {
+    } elseif {$::ASPELL ne {} && [regexp {^[A-Za-z]+$} $eval_txt]} {
         my do_spellcheck $eval_txt
     } else {
         my do_expression $eval_txt
@@ -137,11 +137,7 @@ oo::define App method do_assignment txt {
 
 oo::define App method do_spellcheck txt {
     set say "$AnsText insert end"
-    if {[set aspell [auto_execok aspell]] eq ""} {
-        {*}$say "Cannot find `aspell` executable\n" red
-        return
-    }
-    set cmd [list $aspell -a]
+    set cmd [list $::ASPELL -a]
     set reply [exec {*}$cmd << $txt 1>]
     if {[string index $reply end-1] eq "*"} {
         {*}$say "$txt ✔\n" {green indent}
