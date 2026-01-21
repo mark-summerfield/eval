@@ -202,7 +202,9 @@ oo::define App method evaluate {name expression} {
         $expression [lambda {vars match} \
             { dict getdef $vars $match $match } $Vars]]
     try {
-        set value [expr $expression]
+        set fixed [regsub -all -command {rand[(](\d+)[)]} $expression \
+            [lambda {_ n} { return "int(rand()*$n)" }]]
+        set value [expr $fixed]
         dict set Vars $name $value
         {*}$say $name {blue indent}
         {*}$say " = " {green indent}
