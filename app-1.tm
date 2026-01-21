@@ -64,6 +64,11 @@ oo::define App method on_startup {} {
         {*}$say tls maroon
         {*}$say " so can’t lookup word definitions.\n" brown
     }
+    if {$::WORDFILE eq ""} {
+        {*}$say "Can’t find " brown
+        {*}$say "words file" maroon
+        {*}$say " so can’t generate random words.\n" brown
+    }
 }
 
 oo::define App method make_ui {} {

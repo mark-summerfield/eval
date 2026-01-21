@@ -18,8 +18,10 @@ if {$::HAS_TLS} {
     const DICT_URL https://api.dictionaryapi.dev/api/v2/entries/en
 }
 const ASPELL [auto_execok aspell]
+set WORDFILE /usr/share/dict/words
+if {![file exists $::WORDFILE]} { set WORDFILE "" }
 
-const VERSION 1.4.0
+const VERSION 1.5.0
 units::new stone 14lb
 units::new point 0.013888888888888888in
 units::new pt 1point

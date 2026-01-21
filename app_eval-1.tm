@@ -5,7 +5,8 @@ oo::define App method on_eval {} {
     if {$eval_txt eq ""} { return }
     if {$eval_txt eq "cls" | $eval_txt eq "clear"} {
         $AnsText delete 1.0 end
-    } elseif {$eval_txt eq "rand(word)" || $eval_txt eq "random(word)"} {
+    } elseif {$::WORDFILE ne "" && ($eval_txt eq "rand(word)" ||
+            $eval_txt eq "random(word)")} {
         my do_random_word
     } elseif {[regexp {\d{2,4}-\d\d?-\d\d?|\mtoday\M} $eval_txt]} {
         my do_date $eval_txt
@@ -30,7 +31,7 @@ oo::define App method on_eval {} {
 oo::define App method do_random_word {} {
     my update_combo $EvalCombo rand(word)
     if {![llength $Words]} {
-        set Words [get_random_words /usr/share/dict/words]
+        set Words [get_random_words $::WORDFILE]
     }
     set say "$AnsText insert end"
     set word [lrandom $Words]
