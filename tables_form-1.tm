@@ -86,7 +86,7 @@ oo::define TablesForm method populate_ascii {} {
 		 {\\b "BS" "Backspace"}
 		 {\\t "HT" "Horizontal Tab"}
 		 {\\n "LF" "Line Feed"}
-		 {\\t "VT" "Vertical Tab"}
+		 {\\v "VT" "Vertical Tab"}
 		 {\\f "FF" "Form Feed"}
 		 {\\r "CR" "Carriage Return"}
 		 {"" "SO" "Shift Out"}
