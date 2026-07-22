@@ -164,7 +164,7 @@ oo::define App method show_word_info word {
     set token [http::geturl $::DICT_URL/$word]
     try {
         if {[http::status $token] eq "ok"} {
-            set data [http::data $token]]
+            set data [http::data $token]
             set definitions [word_data_get_definitions $data]
             if {$definitions eq {}} {
                 $AnsText insert end "no definition found\n" {italic orange}
