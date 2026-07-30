@@ -16,12 +16,16 @@ oo::class create TextEdit {
 package require textedit_actions
 package require textedit_export
 package require textedit_export_html
+package require textedit_export_odt
+package require textedit_export_xml
 package require textedit_import
+package require textedit_import_html
+package require textedit_import_xml
 package require textedit_initialize
 package require textedit_serialize
 
 oo::define TextEdit classmethod make_color_menu {the_menu the_callback} {
-    #              K E N B L C T V G I A W D O R P U M
+    ;#             K E N B L C T V G I A W D O R P U M
     const INDEXES {4 2 0 0 0 0 0 3 0 1 1 3 3 0 0 0 1 0}
     foreach index $INDEXES {name color} [TextEdit colors] {
         $the_menu add command -underline $index \
@@ -71,17 +75,21 @@ oo::define TextEdit method MakeContextMenu {} {
 }
 
 oo::define TextEdit method MakeBindings {} {
+    set ::ntext::tabColor ""
     bindtags $Text [list $Text Ntext [winfo toplevel $Text] all]
     bind $Text <<ContextMenu>> "tk_popup $ContextMenu %X %Y"
-    bind $Text <BackSpace> [callback on_bs]
+    bind $Text <Control-Prior> [callback on_ctrl_prior]
+    bind $Text <Control-Next> [callback on_ctrl_next]
     bind $Text <Control-Delete> [callback on_ctrl_del]
+    bind $Text <BackSpace> [callback on_bs]
     bind $Text <Control-BackSpace> [callback on_ctrl_bs]
     bind $Text <Control-a> [callback on_ctrl_a]
     bind $Text <Double-1> [callback on_double_click]
-    bind $Text <Control-Return> [callback on_ctrl_return]
-    bind $Text <Return> [callback on_return]
-    bind $Text <Tab> [callback on_tab]
     bind $Text <'> [callback on_single_quote]
+    bind $Text <Tab> [callback on_tab]
+    bind $Text <Control-Tab> [callback on_ctrl_tab]
+    bind $Text <Control-Key-1> [callback on_ctrl_key_1]
+    bind $Text <Return> [callback on_return]
 }
 
 oo::define TextEdit method make_fonts {family size} {
@@ -120,13 +128,24 @@ oo::define TextEdit method make_tags {} {
     $Text tag configure italic -font Italic
     $Text tag configure bolditalic -font BoldItalic
     $Text tag configure highlight -background $HIGHLIGHT_COLOR
-    set bwidth [font measure Sans "• "]
-    set twidth [font measure Sans "nnnn"]
-    # DEBUG: -background #E0FFFF
-    $Text tag configure bindent0 -lmargin2 $bwidth
-    # DEBUG: -background #ADFFFF
-    $Text tag configure bindent1 -lmargin1 $twidth \
-        -lmargin2 [expr {$twidth + $bwidth}]
+    const BINDENT [font measure Sans " • "]
+    const NINDENT [font measure Sans "9. "]
+    const TINDENT [font measure Sans "   "]
+    $Text tag configure bindent0 -lmargin1 0 -lmargin2 $BINDENT
+    $Text tag configure bindent1 -lmargin1 $BINDENT \
+        -lmargin2 [expr {2 * $BINDENT}]
+    $Text tag configure bindent2 -lmargin1 [expr {2 * $BINDENT}] \
+        -lmargin2 [expr {3 * $BINDENT}]
+    $Text tag configure tindent0 -lmargin1 0 -lmargin2 $TINDENT
+    $Text tag configure tindent1 -lmargin1 $TINDENT \
+        -lmargin2 [expr {2 * $TINDENT}]
+    $Text tag configure tindent2 -lmargin1 [expr {2 * $TINDENT}] \
+        -lmargin2 [expr {3 * $TINDENT}]
+    $Text tag configure nindent0 -lmargin1 0 -lmargin2 $NINDENT
+    $Text tag configure nindent1 -lmargin1 $NINDENT \
+        -lmargin2 [expr {2 * $NINDENT}]
+    $Text tag configure nindent2 -lmargin1 [expr {2 * $NINDENT}] \
+        -lmargin2 [expr {3 * $NINDENT}]
     dict for {key value} $COLOR_FOR_TAG {
         $Text tag configure $key -foreground $value
     }
@@ -282,4 +301,24 @@ oo::define TextEdit method apply_color_to {indexes color} {
         $Text tag add $color {*}$indexes
     }
     $Text edit modified 1
+}
+
+oo::define TextEdit method show_indents show {
+    if {$show} {
+        $Text tag configure bindent0 -background #FFB4B4
+        $Text tag configure bindent1 -background #FFCDCD
+        $Text tag configure bindent2 -background #FFE7E7
+        $Text tag configure tindent0 -background #B4FFB4
+        $Text tag configure tindent1 -background #CDFFCD
+        $Text tag configure tindent2 -background #E7FFE7
+        $Text tag configure nindent0 -background #B4B4FF
+        $Text tag configure nindent1 -background #CDCDFF
+        $Text tag configure nindent2 -background #E7E7FF
+    } else {
+        foreach n {0 1 2} {
+            $Text tag configure bindent$n -background {}
+            $Text tag configure nindent$n -background {}
+            $Text tag configure tindent$n -background {}
+        }
+    }
 }

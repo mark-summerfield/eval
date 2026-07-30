@@ -16,83 +16,122 @@ oo::define TextEdit method on_cut {} { tk_textCut $Text }
 
 oo::define TextEdit method on_paste {} { tk_textPaste $Text }
 
-oo::define TextEdit method on_bs {} {
-    set i [$Text index "insert linestart"]
-    set j [$Text index "insert lineend"]
-    set line [$Text get $i $j]
-    if {[regexp {^•\s+$} $line]} {
-        set i [$Text index "$i -1 char"]
-        set j [$Text index "$j +1 char"]
-        $Text tag remove NtextTab $i $j
-        $Text tag remove bindent0 $i $j
-        $Text tag remove bindent1 $i $j
+oo::define TextEdit method on_bs {{brk 1}} {
+    if {[string match "*.0" [$Text index insert]]} { ;# start of new line
+        if {[set indent [my GetIndent]] ne ""} {
+            my ReduceIndent $indent
+            if {$brk} { return -code break }
+            return
+        }
+    } else {
+        set i [$Text index "insert linestart"]
+        set j [$Text index "insert lineend"]
+        if {[set line [$Text get $i $j]] ne ""} {
+            if {[regexp {^(?:\s•|[1-9]\.)?\s+$} $line match]} {
+                set indent [my GetIndent]
+                $Text delete $i "$i + [string length $match] chars"
+                my ReduceIndent $indent
+                if {$brk} { return -code break }
+                return
+            }
+        }
     }
+    # otherwise normal backspace delete
 }
 
-oo::define TextEdit method on_ctrl_del {} {
-    set i [$Text index "insert +1 char"]
+oo::define TextEdit method on_ctrl_prior {} {
+    $Text mark set insert [$Text index @0,0]
+}
+
+oo::define TextEdit method on_ctrl_next {} {
+    $Text mark set insert \
+        [$Text index "@0,[expr {[winfo height $Text] - 1}]"]
+}
+
+oo::define TextEdit method on_ctrl_bs {} {
+    set i [$Text index "insert -1c"]
     set x [$Text index "$i wordstart"]
     set y [$Text index "$x wordend"]
     $Text delete $x $y
+    return -code break
+}
+
+oo::define TextEdit method on_ctrl_del {} {
+    set i [$Text index "insert +1c"]
+    set x [$Text index "$i wordstart"]
+    set y [$Text index "$x wordend"]
+    $Text delete $x $y
+    return -code break
 }
 
 oo::define TextEdit method on_ctrl_a {} { $Text tag add sel 1.0 end }
 
-oo::define TextEdit method on_ctrl_bs {} {
-    set i [$Text index "insert -1 char"]
-    set x [$Text index "$i wordstart"]
-    set y [$Text index "$x wordend"]
-    $Text delete $x $y
-}
-
-oo::define TextEdit method on_no_list {} {
+oo::define TextEdit method on_return {} {
     set i [$Text index "insert linestart"]
     set j [$Text index "insert lineend"]
-    set i [$Text index "$i -1 char"]
-    set j [$Text index "$j +1 char"]
-    $Text tag remove NtextTab $i $j
-    $Text tag remove bindent0 $i $j
-    $Text tag remove bindent1 $i $j
-}
-
-oo::define TextEdit method on_ctrl_return {} {
-    $Text insert insert \n
-    my on_no_list
-    return -code break
-}
-
-oo::define TextEdit method on_return {} {
-    set i [$Text index "insert -1 char"]
-    set i [$Text index "$i linestart"]
-    set line [$Text get $i "$i lineend"]
-    $Text insert insert \n
-    regexp {^\s*•\s+} $line bullet
-    regexp {^\s+} $line ws
-    if {[info exists bullet] && $bullet ne ""} {
-        if {"bindent1" in [$Text tag names insert] || \
-                ([info exists ws] && $ws ne "")} {
-            $Text insert insert "• " bindent1
-        } else {
-            $Text insert insert "• " bindent0
-        }
-    } elseif {[info exists ws] && $ws ne ""} {
-        $Text insert insert ${ws}
-    }
-    return -code break
-}
-
-oo::define TextEdit method on_tab {{user 1}} {
-    set p [$Text index "insert -1 char"]
-    set i [$Text index "$p linestart"]
-    set j [$Text index "$i lineend"]
     set line [$Text get $i $j]
-    if {[string match "• " $line]} {
-        $Text tag add bindent1 $i "$j +1 char"
-        if {$user} { return -code break }
+    $Text insert insert \n
+    set indent [my GetIndent]
+    if {[regexp {^[•\s]+} $line match]} {
+        $Text insert insert $match $indent
+    } elseif {[regexp {^([1-9])\.\s+} $line match n]} {
+        if {$n < 9} {
+            $Text insert insert [incr n][string range $match 1 end] $indent
+        }
     }
-    if {$Completion && [my TryCompletion $p] && $user} {
-        return -code break
+    return -code break
+}
+
+oo::define TextEdit method on_tab {{user 1} {kind 0} {brk 1}} {
+    if {[string match "*.0" [$Text index insert]]} { ;# start of new line
+        switch $kind {
+            1 {
+                $Text insert insert " • " bindent0
+                set new_indent bindent0
+            }
+            2 {
+                $Text insert insert "1. " nindent0
+                set new_indent nindent0
+            }
+            default {
+                $Text insert insert "   " tindent0
+                set new_indent tindent0
+            }
+        }
+        $Text tag add $new_indent "insert linestart" "insert lineend +1c"
+        if {$brk} { return -code break }
+        return
     }
+    set pi [$Text index "insert -1c"]
+    set pc [$Text get $pi]
+    if {$Completion && $user} {
+        if {[string is alnum $pc]} {
+            my TryCompletion $pi
+            if {$brk} { return -code break }
+            return
+        }
+    }
+    set i [$Text index "insert linestart"]
+    set j [$Text index "insert lineend +1c"]
+    if {[set line [$Text get $i $j]] ne ""} {
+        if {[string is space $pc] && \
+                [regexp {^(?:\s•|[1-9]\.)?\s+} $line match]} {
+            set indent [my GetIndent]
+            my IncreaseIndent $i $j $indent $match
+        }
+    }
+    if {$brk} { return -code break }
+    return
+}
+
+oo::define TextEdit method on_ctrl_tab {{brk 1}} {
+    catch {my on_tab 0 1}
+    if {$brk} { return -code break }
+}
+
+oo::define TextEdit method on_ctrl_key_1 {{brk 1}} {
+    catch {my on_tab 0 2}
+    if {$brk} { return -code break }
 }
 
 oo::define TextEdit method TryCompletion p {
@@ -165,5 +204,68 @@ oo::define TextEdit method on_double_click {} {
     if {[regexp {^(?:file|https?)://} $url]} {
         my highlight_urls
         util::open_url $url
+    }
+}
+
+oo::define TextEdit method ClearIndents {} {
+    set i [$Text index "insert linestart"]
+    set j [$Text index "insert lineend +1c"]
+    $Text tag remove NtextTab $i $j
+    foreach n {0 1 2} {
+        $Text tag remove bindent$n $i $j
+        $Text tag remove nindent$n $i $j
+        $Text tag remove tindent$n $i $j
+    }
+}
+
+oo::define TextEdit method GetIndent {} {
+    foreach tag [$Text tag names insert] {
+        if {[string match ?indent? $tag]} { return $tag }
+    }
+}
+
+oo::define TextEdit method ReduceIndent indent {
+    set i [$Text index "insert linestart"]
+    set j [$Text index "insert lineend"]
+    my ClearIndents
+    switch $indent {
+        bindent0 {}
+        bindent1 { $Text tag add bindent0 $i $j }
+        bindent2 { $Text tag add bindent1 $i $j }
+        nindent0 {}
+        nindent1 { $Text tag add nindent0 $i $j }
+        nindent2 { $Text tag add nindent1 $i $j }
+        tindent0 {}
+        tindent1 { $Text tag add tindent0 $i $j }
+        tindent2 { $Text tag add tindent1 $i $j }
+        default {}
+    }
+}
+
+oo::define TextEdit method IncreaseIndent {i j indent {match ""}} {
+    $Text tag remove NtextTab $i $j
+    if {$indent in {bindent0 bindent1 nindent0 nindent1 tindent0 \
+                    tindent1}} {
+        $Text tag remove $indent $i $j
+    }
+    switch $indent {
+        bindent0 { $Text tag add bindent1 $i $j }
+        bindent1 { $Text tag add bindent2 $i $j }
+        bindent2 {}
+        nindent0 {
+            set n [string index $match 0]
+            $Text replace $i "$i +1c" 1
+            $Text tag add nindent1 $i $j
+        }
+        nindent1 {
+            set n [string index $match 0]
+            $Text replace $i "$i +1c" 1
+            $Text tag add nindent2 $i $j
+        }
+        nindent2 {}
+        tindent0 { $Text tag add tindent1 $i $j }
+        tindent1 { $Text tag add tindent2 $i $j }
+        tindent2 {}
+        default {}
     }
 }
