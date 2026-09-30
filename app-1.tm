@@ -1,7 +1,6 @@
 # Copyright © 2025 Mark Summerfield. All rights reserved.
 
 package require about_form
-package require config
 package require config_form
 package require help_form
 package require lambda 1
@@ -29,8 +28,7 @@ package require app_eval
 
 oo::define App constructor {} {
     ui::wishinit
-    tk appname Eval
-    Config new ;# we need tk scaling done early
+    tk appname $::APPNAME
     my make_fonts
     set Vars [dict create pi [expr {acos(-1)}]]
     set VarsList [list]

@@ -8,6 +8,12 @@ if {![catch {file readlink [info script]} name]} {
 }
 tcl::tm::path add $APPPATH
 
+const APPNAME Eval
+const VERSION 1.5.0
+
+package require config
+Config new ;# we need tk scaling done early
+
 package require app
 package require units
 
@@ -21,10 +27,8 @@ const ASPELL [auto_execok aspell]
 set WORDFILE /usr/share/dict/words
 if {![file exists $::WORDFILE]} { set WORDFILE "" }
 
-const VERSION 1.5.0
 units::new stone 14lb
 units::new point 0.013888888888888888in
 units::new pt 1point
 
-set app [App new]
-$app show
+[App new] show
