@@ -1,64 +1,22 @@
 # Copyright © 2025 Mark Summerfield. All rights reserved.
 
-package require abstract_form
+namespace eval tables {}
+
 package require misc
-package require ui
 
-oo::singleton create TablesForm { superclass AbstractForm }
-
-oo::define TablesForm classmethod show {} {
-    [TablesForm new] show_modeless .tables_form.mf.the_button
-    focus .tables_form.mf.nb
+proc tables::make {} {
+    make_text_widget .mf.nb .afrm
+    make_text_widget .mf.nb .gfrm
+    make_text_widget .mf.nb .nfrm
+    .mf.nb add .mf.nb.afrm -text ASCII -underline 0
+    .mf.nb add .mf.nb.gfrm -text Greek -underline 0
+    .mf.nb add .mf.nb.nfrm -text NATO -underline 0
+    tables::MakeAscii
+    tables::MakeGreek
+    tables::MakeNato
 }
 
-oo::define TablesForm constructor {} {
-    my make_widgets
-    my make_layout
-    my make_bindings
-    my populate
-    next .tables_form [callback on_done]
-}
-
-oo::define TablesForm method make_widgets {} {
-    tk::toplevel .tables_form
-    wm minsize .tables_form 300 200
-    wm title .tables_form "[tk appname] — Tables"
-    ttk::frame .tables_form.mf
-    ttk::notebook .tables_form.mf.nb
-    ttk::notebook::enableTraversal .tables_form.mf.nb
-    [make_text_widget .tables_form.mf.nb .afrm] configure -width 40
-    [make_text_widget .tables_form.mf.nb .gfrm] configure -width 40
-    [make_text_widget .tables_form.mf.nb .nfrm] configure -width 40
-    .tables_form.mf.nb add .tables_form.mf.nb.afrm -text ASCII -underline 0
-    .tables_form.mf.nb add .tables_form.mf.nb.gfrm -text Greek -underline 0
-    .tables_form.mf.nb add .tables_form.mf.nb.nfrm -text NATO -underline 0
-    ttk::button .tables_form.mf.the_button -text Close \
-        -underline 0 -compound left -command [callback on_done] \
-        -image [ui::icon close.svg $::ICON_SIZE]
-}
-
-oo::define TablesForm method make_layout {} {
-    set opts "-padx 3 -pady 3"
-    pack .tables_form.mf.the_button -side bottom {*}$opts
-    pack .tables_form.mf.nb -fill both -expand 1 {*}$opts
-    pack .tables_form.mf -fill both -expand 1
-}
-
-oo::define TablesForm method make_bindings {} {
-    bind .tables_form <Escape> [callback on_done]
-    bind .tables_form <Return> [callback on_done]
-    bind .tables_form <Alt-c> [callback on_done]
-}
-
-oo::define TablesForm method on_done {} { my hide }
-
-oo::define TablesForm method populate {} {
-    my populate_ascii
-    my populate_greek
-    my populate_nato
-}
-
-oo::define TablesForm method PrepareTextWidget txt {
+proc tables::PrepareTextWidget txt {
     $txt tag configure navy -foreground navy
     $txt tag configure green -foreground green
     $txt tag configure bg0 -background #EAEAEA
@@ -66,9 +24,9 @@ oo::define TablesForm method PrepareTextWidget txt {
     $txt tag configure sans -font Sans
 }
 
-oo::define TablesForm method populate_ascii {} {
-    set txt .tables_form.mf.nb.afrm.sa.txt
-    my PrepareTextWidget $txt
+proc tables::MakeAscii {} {
+    set txt .mf.nb.afrm.sa.txt
+    tables::PrepareTextWidget $txt
     set cw [font measure Mono n]
     $txt configure -font Mono \
         -tabs "[expr {$cw * 2}] center [expr {$cw * 7}] right \
@@ -126,9 +84,9 @@ oo::define TablesForm method populate_ascii {} {
     $txt mark set insert 1.0
 }
 
-oo::define TablesForm method populate_greek {} {
-    set txt .tables_form.mf.nb.gfrm.sa.txt
-    my PrepareTextWidget $txt
+proc tables::MakeGreek {} {
+    set txt .mf.nb.gfrm.sa.txt
+    tables::PrepareTextWidget $txt
     set cw [font measure Mono n]
     $txt configure -font Mono \
         -tabs "$cw center [expr {$cw * 6}] right \
@@ -170,9 +128,9 @@ oo::define TablesForm method populate_greek {} {
     }
 }
 
-oo::define TablesForm method populate_nato {} {
-    set txt .tables_form.mf.nb.nfrm.sa.txt
-    my PrepareTextWidget $txt
+proc tables::MakeNato {} {
+    set txt .mf.nb.nfrm.sa.txt
+    tables::PrepareTextWidget $txt
     set width [font measure Sans CharlieXX]
     $txt configure -font Sans -tabs "$width left"
     set words [list Alpha Bravo Charlie Delta Echo Foxtrot Golf Hotel \

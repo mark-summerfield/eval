@@ -7,7 +7,7 @@ package require lambda 1
 package require misc
 package require ref
 package require scrollutil_tile 2
-package require tables_form
+package require tables
 package require ui
 package require units 2
 
@@ -47,7 +47,7 @@ oo::define App method show {} {
 }
 
 oo::define App method on_startup {} {
-    .mf.pw sashpos 0 [expr {[winfo width .] / 2}]
+    .mf.nb.pw sashpos 0 [expr {[winfo width .] / 2}]
     my refresh_vars
     focus $EvalCombo
     $EvalCombo selection range 0 end
@@ -72,6 +72,7 @@ oo::define App method on_startup {} {
 oo::define App method make_ui {} {
     my prepare_ui
     my make_widgets
+    tables::make
     my make_layout
     my make_bindings
 }
@@ -86,7 +87,10 @@ oo::define App method prepare_ui {} {
 oo::define App method make_widgets {} {
     set config [Config new]
     ttk::frame .mf
-    ttk::panedwindow .mf.pw -orient horizontal
+    ttk::notebook .mf.nb
+    ttk::notebook::enableTraversal .mf.nb
+    ttk::panedwindow .mf.nb.pw -orient horizontal
+    .mf.nb add .mf.nb.pw -text Eval -underline 1
     my make_anstext
     my make_vartree
     set values [$config lastevals]
@@ -114,15 +118,11 @@ oo::define App method make_widgets {} {
     ttk::menubutton .mf.ctrl.moreButton -text More -underline 0 -width 7 \
         -compound left -image [ui::icon menu.svg $::ICON_SIZE]
     menu .mf.ctrl.moreButton.menu
-    .mf.ctrl.moreButton.menu add command -label Tables… -underline 0 \
-        -compound left -command [callback on_tables] -accelerator Ctrl+T \
-        -image [ui::icon tables.svg $::MENU_ICON_SIZE]
-    .mf.ctrl.moreButton.menu add separator
     .mf.ctrl.moreButton.menu add command -label Config… -underline 0 \
         -compound left -command [callback on_config] \
         -image [ui::icon preferences-system.svg $::MENU_ICON_SIZE]
     .mf.ctrl.moreButton.menu add separator
-    .mf.ctrl.moreButton.menu add command -label About -underline 0 \
+    .mf.ctrl.moreButton.menu add command -label About -underline 1 \
         -compound left -command [callback on_about] \
         -image [ui::icon about.svg $::MENU_ICON_SIZE]
     .mf.ctrl.moreButton.menu add command -label Help -underline 0 \
@@ -137,7 +137,7 @@ oo::define App method make_widgets {} {
 
 oo::define App method make_anstext {} {
     set AnsText [make_text_widget .mf .af]
-    .mf.pw add .mf.af -weight 3
+    .mf.nb.pw add .mf.af -weight 3
 }
 
 oo::define App method make_fonts {} {
@@ -171,7 +171,7 @@ oo::define App method make_vartree {} {
     $VarTree heading 0 -text Dec
     $VarTree heading 1 -text Hex
     $VarTree heading 2 -text Uni
-    .mf.pw add $frm -weight 1
+    .mf.nb.pw add $frm -weight 1
 }
 
 oo::define App method make_layout {} {
@@ -182,7 +182,8 @@ oo::define App method make_layout {} {
     pack .mf.ctrl -side bottom -fill x
     pack $RegexTextCombo -side bottom -fill x {*}$opts
     pack $EvalCombo -side bottom -fill x {*}$opts
-    pack .mf.pw -fill both -expand 1
+    pack .mf.nb -fill both -expand 1
+    #pack .mf.nb.pw -fill both -expand 1
     pack .mf -fill both -expand 1
 }
 
@@ -191,7 +192,7 @@ oo::define App method make_bindings {} {
     bind $RegexTextCombo <Return> [callback on_eval]
     bind $EvalCombo <Return> [callback on_eval]
     bind . <F1> [callback on_help]
-    bind . <Alt-a> [callback on_about]
+    bind . <Alt-b> [callback on_about]
     bind . <Alt-c> {ui::popup_menu .mf.ctrl.copyButton.menu \
                     .mf.ctrl.copyButton}
     bind . <Alt-e> {focus .mf.exprcombo}

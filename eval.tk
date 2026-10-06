@@ -9,7 +9,7 @@ if {![catch {file readlink [info script]} name]} {
 tcl::tm::path add $APPPATH
 
 const APPNAME Eval
-const VERSION 1.5.0
+const VERSION 1.6.0
 
 package require config
 Config new ;# we need tk scaling done early
