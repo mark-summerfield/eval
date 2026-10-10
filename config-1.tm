@@ -71,27 +71,27 @@ oo::define Config method save {lastevals re_txt} {
     }
 }
 
-oo::define Config method filename {} { return $Filename }
+oo::define Config method filename {} { set Filename }
 oo::define Config method set_filename filename { set Filename $filename }
 
-oo::define Config method blinking {} { return $Blinking }
+oo::define Config method blinking {} { set Blinking }
 oo::define Config method set_blinking blinking { set Blinking $blinking }
 
-oo::define Config method geometry {} { return $Geometry }
+oo::define Config method geometry {} { set Geometry }
 oo::define Config method set_geometry geometry { set Geometry $geometry }
 
-oo::define Config method size {} { return $FontSize }
+oo::define Config method size {} { set FontSize }
 oo::define Config method set_size size { set FontSize $size }
 
-oo::define Config method family {} { return $FontFamily }
+oo::define Config method family {} { set FontFamily }
 oo::define Config method set_family family { set FontFamily $family }
 
-oo::define Config method lastevals {} { return $LastEvals }
+oo::define Config method lastevals {} { set LastEvals }
 oo::define Config method set_lastevals lastevals {
     set LastEvals $lastevals
 }
 
-oo::define Config method lastregexptext {} { return $LastRegexpText }
+oo::define Config method lastregexptext {} { set LastRegexpText }
 oo::define Config method set_lastregexptext lastregexptext {
     set LastRegexpText $lastregexptext
 }
