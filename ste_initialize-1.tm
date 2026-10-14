@@ -1,16 +1,35 @@
-# Copyright © 2025 Mark Summerfield. All rights reserved.
+# Copyright © 2025-26 Mark Summerfield. All rights reserved.
 
-oo::define TextEdit initialize {
+oo::define Ste initialize {
+    variable Initialized 0
     variable N 0
-    variable STE_PREFIX
+    variable STE1_PREFIX
+    variable STE2_PREFIX
+    variable STE3_PREFIX
+    variable STE4_PREFIX
+    variable STE5_PREFIX
+    variable ALL_FONT_KINDS
+    variable HEADING_KINDS
+    variable HEADING_SCALE
+    variable DERIVED_STYLES
     variable FILETYPES
     variable COMMON_WORDS
     variable HIGHLIGHT_COLOR
     variable URL_UL_COLOR
     variable COLOR_FOR_TAG
     variable TAG_FOR_COLOR
+    variable FONT_KINDS
+    variable FONT_SPECS
+    variable FONT_STYLES
+    variable FONT_FOR_STYLE
+    variable DEFAULT_FAMILIES
+    variable FontFor
 
-    const STE_PREFIX STE1\n
+    const STE1_PREFIX STE1\n
+    const STE2_PREFIX STE2\n
+    const STE3_PREFIX STE3\n
+    const STE4_PREFIX STE4\n
+    const STE5_PREFIX STE5\n
 
     const FILETYPES {{{ste files} {.ste}} {{tkt files} {.tkt}} \
         {{compressed tkt files} {.tktz}} {{ste XML files} {.xml}}}
@@ -95,6 +114,41 @@ oo::define TextEdit initialize {
         wireless within without women words working works world would \
         write writing written yahoo years yellow young \
     }
+
+    # The three font kinds; sans is the default (no tag), serif and mono
+    # have tags of the same name.
+    const FONT_KINDS {sans serif mono}
+
+    # The headings each have their own font (family and size) and take
+    # precedence over serif and mono; by default they use the sans family
+    # at the sans size times HEADING_SCALE.
+    const HEADING_KINDS {h1 h2 h3 h4}
+    const HEADING_SCALE {h1 2 h2 1.5 h3 1.3 h4 1.1}
+    const ALL_FONT_KINDS {sans serif mono h1 h2 h3 h4}
+
+    const DEFAULT_FAMILIES {sans [font configure TkDefaultFont -family] \
+            serif Times mono [font configure TkFixedFont -family]}
+
+    set FontFor [dict create] ;# kind -> {family size}; see make_fonts
+
+    # suffix size-scale weight slant
+    const FONT_SPECS {
+        Roman 1 normal roman
+        Small 0.75 normal roman
+        Bold 1 bold roman
+        Italic 1 normal italic
+        BoldItalic 1 bold italic
+    }
+
+    # Tags that change the font, lowest to highest priority (this
+    # mirrors the order they are created in make_tags).
+    const FONT_STYLES {sub sup h1 h2 h3 h4 bold italic bolditalic}
+
+    # The styles that get derived tags (headings have their own fonts)
+    const DERIVED_STYLES {sub sup bold italic bolditalic}
+
+    const FONT_FOR_STYLE {sub Small sup Small bold Bold italic Italic
+        bolditalic BoldItalic}
 
     const HIGHLIGHT_COLOR yellow
 

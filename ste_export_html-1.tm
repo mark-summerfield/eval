@@ -1,12 +1,12 @@
-# Copyright © 2025 Mark Summerfield. All rights reserved.
+# Copyright © 2025-26 Mark Summerfield. All rights reserved.
 #
 # Adpated from Claude AI-generated code (all comments bar this are from
 # the AI).
 #
 # Self-contained, round-trippable HTML export. Pairs with from_html in
-# textedit_import_html-1.tm.
+# ste_import_html-1.tm.
 #
-# Structurally this is the same walk as XmlFromDump (textedit_export_
+# Structurally this is the same walk as XmlFromDump (ste_export_
 # xml-1.tm) -- one <p> per line, tag-state runs -- and reuses that file's
 # tag-classification/priority-resolution helpers (XmlClassifyTag,
 # XmlResolveTag, xml_escape, xml_escape_attr) since those are format-
@@ -15,7 +15,7 @@
 # real Tk tag names directly as CSS class names (<p class="right">,
 # <span class="bold red">, <p class="bindent1">), styled by an embedded
 # <style> block built from the exact values in make_tags/COLOR_FOR_TAG --
-# so this depends on textedit_export_xml-1.tm being loaded first.
+# so this depends on ste_export_xml-1.tm being loaded first.
 #
 # `url` runs become <a class="url ..." href="TEXT">TEXT</a> (href is
 # just the run's own text, since ste's `url` tag is applied to literal
@@ -30,17 +30,17 @@
 # round trip through from_html doesn't inject a stray character -- a
 # `p:empty { min-height: ... }` CSS rule keeps them visible in a browser.
 
-oo::define TextEdit method as_html title {
+oo::define Ste method as_html title {
     set dump [$Text dump -text -mark -tag 1.0 "end -1 char"]
     my HtmlFromDump $dump $title
 }
 
-oo::define TextEdit method HtmlFromDump {dump title} {
+oo::define Ste method HtmlFromDump {dump title} {
     set inlineTags {}     ;# ordered list of currently-active inline tags
     set justifyStack {}   ;# stack of currently-active justify tags
     set indentStack {}    ;# stack of currently-active indent tags
 
-    # See textedit_export_xml-1.tm::XmlFromDump for why these are seeded
+    # See ste_export_xml-1.tm::XmlFromDump for why these are seeded
     # lazily rather than immediately at paragraph-flush time (same-index
     # tagoff/tagon pairs at a level-transition boundary, e.g.
     # "tagoff bindent0 X.0 tagon bindent1 X.0").
@@ -188,7 +188,7 @@ oo::define TextEdit method HtmlFromDump {dump title} {
 # active). `url` gets a real, clickable <a href="..."> instead of <span>
 # -- ste's url tag is applied to literal URL text, so the text itself
 # *is* the target.
-oo::define TextEdit method HtmlMakeRun {text tags} {
+oo::define Ste method HtmlMakeRun {text tags} {
     if {[llength $tags] == 0} {
         return [my xml_escape $text]
     }
@@ -200,7 +200,7 @@ oo::define TextEdit method HtmlMakeRun {text tags} {
     return "<span class=\"$cls\">[my xml_escape $text]</span>"
 }
 
-oo::define TextEdit method HtmlMakeMark name {
+oo::define Ste method HtmlMakeMark name {
     return "<ste-mark data-name=\"[my xml_escape_attr $name]\"/>"
 }
 
@@ -208,7 +208,7 @@ oo::define TextEdit method HtmlMakeMark name {
 # resolved justify/indent tags are used directly as class names -- no
 # translation to kind/level attributes needed, since the CSS in
 # HtmlDocument targets the raw tag names (.right, .bindent1, ...).
-oo::define TextEdit method HtmlMakePara {justifySeen indentSeen \
+oo::define Ste method HtmlMakePara {justifySeen indentSeen \
         paraChildren} {
     set classes {}
     set justify [my XmlResolveTag $justifySeen {center right}]
@@ -240,13 +240,14 @@ oo::define TextEdit method HtmlMakePara {justifySeen indentSeen \
 # document with an embedded stylesheet built from the exact values
 # make_tags/COLOR_FOR_TAG use, so a plain browser renders it the same
 # way $Text does.
-oo::define TextEdit method HtmlDocument {title body} {
+oo::define Ste method HtmlDocument {title body} {
     classvariable HIGHLIGHT_COLOR
     classvariable URL_UL_COLOR
     classvariable COLOR_FOR_TAG
 
     set css {}
-    append css "body{font-family:sans-serif;font-size:1em;line-height:1.5;"
+    append css "body{font-family:[my CssFamily sans];font-size:1em;\
+        line-height:1.5;"
     append css "max-width:50em;margin:2em auto;padding:0\
         1em;color:#000;background:#fff}\n"
     append css "p{margin:0 0 .6em 0}\n"
@@ -262,6 +263,17 @@ oo::define TextEdit method HtmlDocument {title body} {
                 ".$kind$n\{margin-left:${ml}em;text-indent:-1.5em\}\n"
         }
     }
+    # serif and mono first so headings (which have their own fonts) win
+    foreach kind {serif mono} {
+        append css ".$kind\{font-family:[my CssFamily $kind];\
+            font-size:[my CssEm $kind]em\}\n"
+    }
+    foreach {kind top} {h1 0.67 h2 0.83 h3 1 h4 1.33} {
+        append css ".$kind\{font-family:[my CssFamily $kind];\
+            font-size:[my CssEm $kind]em;margin-top:${top}em;\
+            margin-bottom:${top}em;margin-left:0;margin-right:0;\
+            font-weight:bold\}\n"
+    }
     append css ".bold{font-weight:bold}\n"
     append css ".italic{font-style:italic}\n"
     append css ".bolditalic{font-weight:bold;font-style:italic}\n"
@@ -271,8 +283,8 @@ oo::define TextEdit method HtmlDocument {title body} {
     append css ".highlight{background-color:$HIGHLIGHT_COLOR}\n"
     append css ".sub{font-size:75%;vertical-align:sub}\n"
     append css ".sup{font-size:75%;vertical-align:super}\n"
-    append css [string cat "a.url{text-decoration:underline;" \
-            "text-decoration-color:$URL_UL_COLOR;color:inherit}\n"]
+    append css [string cat "a.url\{text-decoration:underline;" \
+            "text-decoration-color:$URL_UL_COLOR;color:inherit\}\n"]
     append css [string cat "ste-mark{display:inline-block;width:0;" \
             "height:0;overflow:hidden}\n"]
     dict for {tag hex} $COLOR_FOR_TAG { append css ".$tag\{color:$hex\}\n" }
@@ -283,4 +295,20 @@ oo::define TextEdit method HtmlDocument {title body} {
     append out "<title>$escTitle</title>\n<style>\n$css</style>\n</head>\n"
     append out "<body data-title=\"[my xml_escape_attr \
         $title]\">\n$body</body>\n</html>\n"
+}
+
+# The configured family followed by sensible fallbacks.
+oo::define Ste classmethod CssFamily kind {
+    set family [string map [list \" {} ' {}] [my family_for $kind]]
+    if {[string match h? $kind]} { set kind sans } ;# only for fallbacks
+    set generic [dict get {sans sans-serif serif serif mono monospace} \
+        $kind]
+    set fallback [dict get {sans Arial serif "Times New Roman"
+        mono "Courier New"} $kind]
+    return "'$family','$fallback',$generic"
+}
+
+# The kind's font size relative to the sans (body) size.
+oo::define Ste classmethod CssEm kind {
+    format %.3g [expr {double([my size_for $kind]) / [my size_for sans]}]
 }

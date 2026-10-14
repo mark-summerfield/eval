@@ -2,13 +2,13 @@
 
 package require abstract_form
 package require misc
-package require textedit
+package require ste
 package require ui
 
 oo::singleton create HelpForm {
     superclass AbstractForm
 
-    variable Text
+    variable AnSte
 }
 
 oo::define HelpForm classmethod show {} {
@@ -24,15 +24,15 @@ oo::define HelpForm constructor {} {
     next .help_form [callback on_done]
 }
 
-oo::define HelpForm method tk_text {} { $Text tk_text }
+oo::define HelpForm method tk_text {} { $AnSte tk_text }
 
 oo::define HelpForm method make_widgets {} {
     tk::toplevel .help_form
     wm minsize .help_form 300 200
     wm title .help_form "[tk appname] — Help"
     ttk::frame .help_form.mf
-    set Text [TextEdit new .help_form.mf]
-    [$Text tk_text] configure -width 40
+    set AnSte [Ste new .help_form.mf]
+    [$AnSte tk_text] configure -width 40
     my populate
     ttk::button .help_form.mf.the_button -text Close \
         -underline 0 -compound left -command [callback on_done] \
@@ -42,7 +42,7 @@ oo::define HelpForm method make_widgets {} {
 oo::define HelpForm method make_layout {} {
     set opts "-padx 3 -pady 3"
     pack .help_form.mf.the_button -side bottom {*}$opts
-    pack [$Text ttk_frame] -fill both -expand 1 {*}$opts
+    pack [$AnSte ttk_frame] -fill both -expand 1 {*}$opts
     pack .help_form.mf -fill both -expand 1
 }
 
@@ -55,5 +55,5 @@ oo::define HelpForm method make_bindings {} {
 oo::define HelpForm method on_done {} { my hide }
 
 oo::define HelpForm method populate {} {
-    $Text deserialize [readFile $::APPPATH/help.tktz binary] .tktz 
+    $AnSte deserialize [readFile $::APPPATH/help.tktz binary] .tktz 
 }

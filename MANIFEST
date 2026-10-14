@@ -15,13 +15,17 @@ abstract_form-1.tm
 message_form-1.tm
 ui-1.tm
 
-textedit-1.tm
-textedit_actions-1.tm
-textedit_export-1.tm
-textedit_export_html-1.tm
-textedit_import-1.tm
-textedit_initialize-1.tm
-textedit_serialize-1.tm
+ste-1.tm
+ste_actions-1.tm
+ste_export-1.tm
+ste_export_html-1.tm
+ste_export_odt-1.tm
+ste_export_xml-1.tm
+ste_import-1.tm
+ste_import_html-1.tm
+ste_import_xml-1.tm
+ste_initialize-1.tm
+ste_serialize-1.tm
 
 README.md
 

@@ -1,4 +1,4 @@
-# Copyright © 2025 Mark Summerfield. All rights reserved.
+# Copyright © 2025-26 Mark Summerfield. All rights reserved.
 #
 # Adpated from Claude AI-generated code (all comments bar this are from
 # the AI).
@@ -22,7 +22,7 @@
 # passes over it (collect styles, then emit).
 #
 # Tag classification (justify vs indent vs inline) and priority
-# resolution are reused from textedit_export_xml-1.tm's XmlClassifyTag/
+# resolution are reused from ste_export_xml-1.tm's XmlClassifyTag/
 # XmlResolveTag -- both are format-agnostic -- so that file must be
 # loaded first. Escaping is also shared (xml_escape/xml_escape_attr).
 #
@@ -32,7 +32,7 @@
 # the archive and stored *uncompressed* (so file(1)/magic-byte sniffing
 # works), which off-the-shelf zip helpers don't reliably guarantee.
 
-oo::define TextEdit method as_odt {path title} {
+oo::define Ste method as_odt {path title} {
     set dump [$Text dump -text -mark -tag 1.0 "end -1 char"]
     set paras [my OdtDumpToParas $dump]
     lassign [my OdtBuildContent $paras $title] contentXml paraStyleXml \
@@ -61,9 +61,9 @@ oo::define TextEdit method as_odt {path title} {
 #                                      {mark {name NAME}} ...}}
 # where TAG is a raw tk tag name (e.g. "right", "bindent1") or {}.
 # This is the same lazy-seeding walk as XmlFromDump/HtmlFromDump -- see
-# textedit_export_xml-1.tm for why the seed is deferred rather than
+# ste_export_xml-1.tm for why the seed is deferred rather than
 # taken immediately at paragraph-flush time.
-oo::define TextEdit method OdtDumpToParas dump {
+oo::define Ste method OdtDumpToParas dump {
     set inlineTags {}
     set justifyStack {}
     set indentStack {}
@@ -209,7 +209,7 @@ oo::define TextEdit method OdtDumpToParas dump {
 # Resolve the winning justify/indent tag for a paragraph (same
 # priority-resolution logic as XmlMakePara/HtmlMakePara) and package it
 # with its children into one paragraph-model dict.
-oo::define TextEdit method OdtMakeParaModel {justifySeen indentSeen \
+oo::define Ste method OdtMakeParaModel {justifySeen indentSeen \
         paraChildren} {
     set justify [my XmlResolveTag $justifySeen {center right}]
     set indentTag {}
@@ -236,13 +236,17 @@ oo::define TextEdit method OdtMakeParaModel {justifySeen indentSeen \
 # empty) list of "attr=\"value\"" fragments to go inside
 # <style:text-properties .../>, plus a flag for whether this tag wants
 # its run wrapped in <text:a href="...">.
-oo::define TextEdit method OdtRunTagProps tag {
+oo::define Ste method OdtRunTagProps tag {
     classvariable COLOR_FOR_TAG
     classvariable URL_UL_COLOR
     if {[dict exists $COLOR_FOR_TAG $tag]} {
         return [list fo:color=\"[dict get $COLOR_FOR_TAG $tag]\"]
     }
     switch -- $tag {
+        h1 - h2 - h3 - h4 {
+            return [concat [my OdtFontProps $tag] {fo:font-weight="bold"}]
+        }
+        serif - mono { return [my OdtFontProps $tag] }
         bold        { return {fo:font-weight="bold"} }
         italic      { return {fo:font-style="italic"} }
         bolditalic  {
@@ -273,7 +277,7 @@ oo::define TextEdit method OdtRunTagProps tag {
 
 # Paragraph-level ODF properties (justify + hanging indent) for a
 # resolved justify/indent tag pair.
-oo::define TextEdit method OdtParaTagProps {justify indent} {
+oo::define Ste method OdtParaTagProps {justify indent} {
     set props {}
     switch -- $justify {
         center { lappend props {fo:text-align="center"} }
@@ -293,7 +297,7 @@ oo::define TextEdit method OdtParaTagProps {justify indent} {
 # Build content.xml, collecting/emitting automatic styles as they're
 # first encountered (a style is only emitted once per distinct
 # paragraph-tag-pair or run-tag-set actually used in the document).
-oo::define TextEdit method OdtBuildContent {paras title} {
+oo::define Ste method OdtBuildContent {paras title} {
     set paraStyleNameFor [dict create]
     set runStyleNameFor [dict create]
     set paraStyleDefs {}
@@ -342,7 +346,16 @@ oo::define TextEdit method OdtBuildContent {paras title} {
                     # otherwise produce an invalid XML element with a
                     # duplicate attribute.
                     set propsDict [dict create]
+                    # serif and mono first so later tags (headings, bold,
+                    # etc.) override their font properties
+                    set ordered [list]
                     foreach t $tags {
+                        if {$t in {serif mono}} { lappend ordered $t }
+                    }
+                    foreach t $tags {
+                        if {$t ni {serif mono}} { lappend ordered $t }
+                    }
+                    foreach t $ordered {
                         foreach p [my OdtRunTagProps $t] {
                             set eqPos [string first "=" $p]
                             set key [string range $p 0 [expr {$eqPos - 1}]]
@@ -399,7 +412,7 @@ oo::define TextEdit method OdtBuildContent {paras title} {
 
 # --- the other package parts: manifest, styles.xml, meta.xml --------
 
-oo::define TextEdit method OdtManifest {} {
+oo::define Ste method OdtManifest {} {
     set out "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
     append out "<manifest:manifest"
     append out " xmlns:manifest=\"urn:oasis:names:tc:opendocument:xmlns:manifest:1.0\""
@@ -412,7 +425,7 @@ oo::define TextEdit method OdtManifest {} {
     append out "</manifest:manifest>\n"
 }
 
-oo::define TextEdit method OdtStyles {} {
+oo::define Ste method OdtStyles {} {
     set out "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
     append out "<office:document-styles"
     append out " xmlns:office=\"urn:oasis:names:tc:opendocument:xmlns:office:1.0\""
@@ -421,14 +434,15 @@ oo::define TextEdit method OdtStyles {} {
     append out " office:version=\"1.2\">\n"
     append out "<office:styles>\n"
     append out "<style:default-style style:family=\"paragraph\">"
-    append out "<style:text-properties style:font-name=\"Liberation Sans\" fo:font-size=\"11pt\"/>"
+    append out "<style:text-properties \
+        [join [my OdtFontProps sans] { }]/>"
     append out "</style:default-style>\n"
     append out "<style:style style:name=\"Standard\" style:family=\"paragraph\" style:class=\"text\"/>\n"
     append out "</office:styles>\n"
     append out "</office:document-styles>\n"
 }
 
-oo::define TextEdit method OdtMeta title {
+oo::define Ste method OdtMeta title {
     set out "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
     append out "<office:document-meta"
     append out " xmlns:office=\"urn:oasis:names:tc:opendocument:xmlns:office:1.0\""
@@ -446,7 +460,7 @@ oo::define TextEdit method OdtMeta title {
 # "deflate". `mimetype` MUST be entries' first element and MUST use
 # "store" -- the ODF spec requires it uncompressed and first so
 # file(1)-style magic-byte sniffing works without unzipping anything.
-oo::define TextEdit method OdtWriteZip {path entries} {
+oo::define Ste method OdtWriteZip {path entries} {
     set localBlob {}
     set central {}
     set offset 0
@@ -501,4 +515,19 @@ oo::define TextEdit method OdtWriteZip {path entries} {
     } finally {
         close $fh
     }
+}
+
+# ODF font attributes (family and size) for sans, serif, mono, or h1-h4
+# using the configured family plus a generic family so a reader can
+# substitute if need be.
+oo::define Ste classmethod OdtFontProps kind {
+    lassign [dict get {
+        sans {swiss variable} serif {roman variable} mono {modern fixed}
+        h1 {swiss variable} h2 {swiss variable} h3 {swiss variable}
+        h4 {swiss variable}
+    } $kind] generic pitch
+    list fo:font-family=\"[my xml_escape_attr [my family_for $kind]]\" \
+        style:font-family-generic=\"$generic\" \
+        style:font-pitch=\"$pitch\" \
+        fo:font-size=\"[my size_for $kind]pt\"
 }
