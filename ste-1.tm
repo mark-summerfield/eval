@@ -110,7 +110,11 @@ oo::define Ste classmethod make_default_font_dict {{size 0}} {
     set fonts [list \
             sans [list [font configure TkDefaultFont -family] $size] \
             serif [list Times $size] \
-            mono [list [font configure TkFixedFont -family] $size]]
+            mono [list [font configure TkFixedFont -family] $size] \
+            casual [list Comic $size] \
+            gothic [list Gothic $size] \
+            script [list Script $size] \
+            ]
     foreach {kind scale} {h1 2 h2 1.5 h3 1.3 h4 1.1} {
         dict set fonts $kind [list [font configure TkDefaultFont -family] \
             [expr {int(round($size * $scale))}]]
@@ -126,6 +130,7 @@ oo::define Ste classmethod make_default_font_dict {{size 0}} {
 oo::define Ste classmethod make_fonts fonts {
     variable DEFAULT_FAMILIES
     variable BASE_FONT_KINDS
+    variable EXTRA_FONT_KINDS
     variable FONT_SPECS
     variable HEADING_KINDS
     variable HEADING_SCALE
@@ -137,6 +142,25 @@ oo::define Ste classmethod make_fonts fonts {
         if {$family eq ""} {
             set family [dict get $DEFAULT_FAMILIES $kind]
         }
+        if {![string is integer -strict $size] || $size <= 0} {
+            set size $default_size
+        }
+        dict set FontFor $kind [list $family $size]
+        foreach {suffix scale weight slant} $FONT_SPECS {
+            set name [my font_name $kind $suffix]
+            set opts [list -family $family -weight $weight -slant $slant \
+                    -size [expr {int(round($size * $scale))}]]
+            if {$name in [font names]} {
+                font configure $name {*}$opts
+            } else {
+                font create $name {*}$opts
+            }
+        }
+    }
+    foreach kind $EXTRA_FONT_KINDS {
+        lassign [expr {[dict exists $fonts $kind]
+                ? [dict get $fonts $kind] : ""}] family size
+        if {$family eq ""} { set family [string totitle $kind] }
         if {![string is integer -strict $size] || $size <= 0} {
             set size $default_size
         }
@@ -177,6 +201,9 @@ oo::define Ste classmethod font_name {kind suffix} {
     switch $kind {
         serif { return Serif$suffix }
         mono { return Mono$suffix }
+        casual { return Casual$suffix }
+        gothic { return Gothic$suffix }
+        script { return Script$suffix }
         default { return $suffix }
     }
 }
@@ -215,8 +242,12 @@ oo::define Ste method make_tags {} {
     classvariable COLOR_FOR_TAG
     classvariable DERIVED_STYLES
     classvariable FONT_FOR_STYLE
+    classvariable FONT_KINDS_EXCL_SANS
     # The font tags must be the lowest priority; see refresh_fonts.
     $Text tag configure serif -font SerifRoman
+    $Text tag configure casual -font CasualRoman
+    $Text tag configure gothic -font GothicRoman
+    $Text tag configure script -font ScriptRoman
     $Text tag configure mono -font MonoRoman
     $Text tag configure sub -font Small -offset -3p
     $Text tag configure sup -font Small -offset 3p
@@ -239,8 +270,8 @@ oo::define Ste method make_tags {} {
     }
     # One tag per family+style combination, e.g. fnt:serif:bold; Tk tags
     # can't combine fonts so refresh_fonts applies these (highest
-    # priority) wherever a serif or mono run also has a font style.
-    foreach kind {serif mono} {
+    # priority) wherever a non-sans run also has a font style.
+    foreach kind $FONT_KINDS_EXCL_SANS {
         foreach style $DERIVED_STYLES {
             $Text tag configure [my derived_tag $kind $style] \
                 -font [my font_name $kind [dict get $FONT_FOR_STYLE $style]]
@@ -288,6 +319,26 @@ oo::define Ste classmethod base_font_kinds {} {
 oo::define Ste classmethod all_font_kinds {} {
     variable ALL_FONT_KINDS
     return $ALL_FONT_KINDS
+}
+
+oo::define Ste classmethod extra_font_kinds {} {
+    variable EXTRA_FONT_KINDS
+    return $EXTRA_FONT_KINDS
+}
+
+oo::define Ste classmethod font_heading_kinds {} {
+    variable HEADING_KINDS
+    return $HEADING_KINDS
+}
+
+oo::define Ste classmethod font_body_kinds {} {
+    variable FONT_BODY_KINDS
+    return $FONT_BODY_KINDS
+}
+
+oo::define Ste classmethod font_kinds {} {
+    variable FONT_KINDS
+    return $FONT_KINDS
 }
 
 oo::define Ste method unknown {the_method args} {
@@ -407,17 +458,19 @@ oo::define Ste method apply_font kind {
     my apply_font_to [my selected] $kind
 }
 
-# kind is sans (the default, no tag), serif, or mono
+# kind is sans (the default, no tag), or any of the other body kinds
 oo::define Ste method apply_font_to {indexes kind} {
     classvariable HEADING_KINDS
+    classvariable FONT_KINDS_EXCL_SANS
     if {$indexes ne ""} {
         # headings have their own fonts (which override sans, serif, and
         # mono) so choosing a family means the text is no longer a heading
         foreach heading $HEADING_KINDS {
             $Text tag remove $heading {*}$indexes
         }
-        $Text tag remove serif {*}$indexes
-        $Text tag remove mono {*}$indexes
+        foreach body $FONT_KINDS_EXCL_SANS {
+            $Text tag remove $body {*}$indexes
+        }
         if {$kind ne "sans"} { $Text tag add $kind {*}$indexes }
         my refresh_fonts $indexes
         $Text edit modified 1
@@ -425,7 +478,7 @@ oo::define Ste method apply_font_to {indexes kind} {
 }
 
 # Tk tags cannot combine fonts: a bold tag's font replaces a serif
-# tag's. So for every span of text that is serif or mono and also has a
+# tag's. So for every span of text that is non-sans and also has a
 # font-changing style (bold, h1, sub, etc.), add the derived tag
 # fnt:<kind>:<style> whose font has both. The derived tags are internal:
 # they are never saved or exported (see StripDerived and
@@ -435,17 +488,18 @@ oo::define Ste method apply_font_to {indexes kind} {
 oo::define Ste method refresh_fonts indexes {
     classvariable FONT_STYLES
     classvariable DERIVED_STYLES
+    classvariable FONT_KINDS_EXCL_SANS
     foreach {from to} $indexes {
         set from [$Text index $from]
         set to [$Text index $to]
         if {[$Text compare $from >= $to]} continue
-        foreach kind {serif mono} {
+        foreach kind $FONT_KINDS_EXCL_SANS {
             foreach style $DERIVED_STYLES {
                 $Text tag remove [my derived_tag $kind $style] $from $to
             }
         }
         set points [list $from $to]
-        foreach tag [concat {serif mono} $FONT_STYLES] {
+        foreach tag [concat $FONT_KINDS_EXCL_SANS $FONT_STYLES] {
             foreach {a b} [$Text tag ranges $tag] {
                 foreach p [list $a $b] {
                     if {[$Text compare $p > $from] &&
@@ -459,8 +513,10 @@ oo::define Ste method refresh_fonts indexes {
                 $points]
         foreach a [lrange $points 0 end-1] b [lrange $points 1 end] {
             set tags [$Text tag names $a]
-            set kind [expr {"mono" in $tags ? "mono" : "serif" in $tags \
-                    ? "serif" : ""}]
+            set kind "" ;# the last (highest priority) family tag wins
+            foreach body $FONT_KINDS_EXCL_SANS {
+                if {$body in $tags} { set kind $body }
+            }
             if {$kind eq ""} continue
             set winner ""
             foreach style $FONT_STYLES {
