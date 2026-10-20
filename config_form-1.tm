@@ -78,8 +78,7 @@ oo::define ConfigForm method make_layout {} {
     grid .configForm.mf.fontLabel -row 1 -column 1 -columnspan 2 \
         -sticky news {*}$opts
     grid .configForm.mf.blinkCheckbutton -row 2 -column 1 -sticky we
-    grid .configForm.mf.configFileLabel -row 8 -column 0 -sticky we \
-        {*}$opts
+    grid .configForm.mf.configFileLabel -row 8 -column 0 -sticky we {*}$opts
     grid .configForm.mf.configFilenameLabel -row 8 -column 1 \
         -columnspan 2 -sticky we {*}$opts
     grid .configForm.mf.buttons -row 9 -column 0 -columnspan 3 \
